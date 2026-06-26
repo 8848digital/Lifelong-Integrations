@@ -1,15 +1,17 @@
 exclude: 'node_modules|.git'
-default_stages: [pre-commit]
+default_stages: [commit]
 fail_fast: false
 
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v4.3.0
     hooks:
       - id: trailing-whitespace
-        files: "lifelong_integrations.*"
         exclude: ".*json$|.*txt$|.*csv|.*md|.*svg"
+      - id: check-yaml
+      - id: no-commit-to-branch
+        args: [ '--branch', 'develop']
       - id: check-merge-conflict
       - id: check-ast
       - id: check-json
@@ -17,18 +19,10 @@ repos:
       - id: check-yaml
       - id: debug-statements
 
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.8.1
+  - repo: https://github.com/frappe/black
+    rev: 951ccf4d5bb0d692b457a5ebc4215d755618eb68
     hooks:
-      - id: ruff
-        name: "Run ruff import sorter"
-        args: ["--select=I", "--fix"]
-
-      - id: ruff
-        name: "Run ruff linter"
-
-      - id: ruff-format
-        name: "Run ruff formatter"
+      - id: black
 
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v2.7.1
@@ -38,11 +32,7 @@ repos:
         # Ignore any files that might contain jinja / bundles
         exclude: |
             (?x)^(
-                lifelong_integrations/public/dist/.*|
-                .*node_modules.*|
-                .*boilerplate.*|
-                lifelong_integrations/templates/includes/.*|
-                lifelong_integrations/public/js/lib/.*
+
             )$
 
 
@@ -55,15 +45,24 @@ repos:
         # Ignore any files that might contain jinja / bundles
         exclude: |
             (?x)^(
-                lifelong_integrations/public/dist/.*|
-                cypress/.*|
-                .*node_modules.*|
-                .*boilerplate.*|
-                lifelong_integrations/templates/includes/.*|
-                lifelong_integrations/public/js/lib/.*
+
             )$
 
-ci:
-    autoupdate_schedule: weekly
-    skip: []
-    submodules: false
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+
+  - repo: https://github.com/PyCQA/flake8
+    rev: 6.0.0
+    hooks:
+      - id: flake8
+        additional_dependencies: ['flake8-bugbear',]
+
+  - repo: local
+    hooks:
+    - id: check-max-lines
+      name: Check Max Lines
+      entry: python scripts/check_max_lines.py
+      language: python
+      types: [python]
