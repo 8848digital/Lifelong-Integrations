@@ -148,23 +148,15 @@ app_license = "mit"
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"lifelong_integrations.tasks.all"
-# 	],
-# 	"daily": [
-# 		"lifelong_integrations.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"lifelong_integrations.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"lifelong_integrations.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"lifelong_integrations.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+	"cron": {
+		"0 */6 * * *": [
+			"lifelong_integrations.lifelong_integrations.doctype.lifelong_zepto_settings.api.get_zepto_po_events",
+			"lifelong_integrations.lifelong_integrations.doctype.lifelong_zepto_settings.api.create_zepto_quotations",
+			"lifelong_integrations.lifelong_integrations.doctype.lifelong_zepto_settings.api.process_pending_asn_shipments",
+		]
+	}
+}
 
 # Testing
 # -------
@@ -241,4 +233,3 @@ app_license = "mit"
 # default_log_clearing_doctypes = {
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
-
