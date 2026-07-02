@@ -1,0 +1,88 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-07-02 16:27:15.404618",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "po_code",
+  "status",
+  "event_type",
+  "vendor_code",
+  "sync_via",
+  "sync_doc",
+  "column_break_cavf",
+  "purchase_order"
+ ],
+ "fields": [
+  {
+   "fieldname": "po_code",
+   "fieldtype": "Data",
+   "label": "PO Code"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Initiated\nCreated\nCancelled"
+  },
+  {
+   "fieldname": "event_type",
+   "fieldtype": "Data",
+   "label": "Event Type"
+  },
+  {
+   "fieldname": "vendor_code",
+   "fieldtype": "Data",
+   "label": "Vendor Code"
+  },
+  {
+   "fieldname": "sync_via",
+   "fieldtype": "Link",
+   "label": "Sync Via",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "sync_doc",
+   "fieldtype": "Dynamic Link",
+   "label": "Sync doc",
+   "options": "sync_via"
+  },
+  {
+   "fieldname": "column_break_cavf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "purchase_order",
+   "fieldtype": "JSON",
+   "label": "Purchase Order"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-07-02 16:27:15.404618",
+ "modified_by": "Administrator",
+ "module": "Lifelong Integrations",
+ "name": "Swiggy PO Data",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
