@@ -5,20 +5,32 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "target_site_url"
+  "target_site_url",
+  "target_site_user_api_key",
+  "target_site_user_api_secret"
  ],
  "fields": [
   {
    "fieldname": "target_site_url",
    "fieldtype": "Data",
    "label": "Target Site URL"
+  },
+  {
+   "fieldname": "target_site_user_api_key",
+   "fieldtype": "Data",
+   "label": "Target Site User API Key"
+  },
+  {
+   "fieldname": "target_site_user_api_secret",
+   "fieldtype": "Password",
+   "label": "Target Site User API Secret"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-06-26 18:29:13.247106",
+ "modified": "2026-06-29 14:51:44.526191",
  "modified_by": "Administrator",
  "module": "Lifelong Integrations",
  "name": "Lifelong Settings",

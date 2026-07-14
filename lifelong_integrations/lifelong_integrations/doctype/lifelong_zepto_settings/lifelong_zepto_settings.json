@@ -66,64 +66,6 @@
   {
    "fieldname": "column_break_auum",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "default_configuration_tab",
-   "fieldtype": "Tab Break",
-   "label": "Default Configuration"
-  },
-  {
-   "fieldname": "company",
-   "fieldtype": "Link",
-   "label": "Company",
-   "options": "Company"
-  },
-  {
-   "fieldname": "company_address",
-   "fieldtype": "Link",
-   "label": "Company Address",
-   "options": "Address"
-  },
-  {
-   "fieldname": "default_item",
-   "fieldtype": "Link",
-   "label": "Default Item",
-   "options": "Item"
-  },
-  {
-   "fieldname": "default_warehouse",
-   "fieldtype": "Link",
-   "label": "Default Warehouse",
-   "options": "Warehouse"
-  },
-  {
-   "fieldname": "default_customer",
-   "fieldtype": "Link",
-   "label": "Default Customer",
-   "options": "Customer"
-  },
-  {
-   "fieldname": "default_payment_terms_template",
-   "fieldtype": "Link",
-   "label": "Default Payment Terms Template",
-   "options": "Payment Terms Template"
-  },
-  {
-   "fieldname": "asn_days_filter",
-   "fieldtype": "Int",
-   "label": "Asn Days Filter"
-  },
-  {
-   "fieldname": "zepto_linked_location",
-   "fieldtype": "Table",
-   "label": "Zepto Linked Location",
-   "options": "Zepto Linked Location"
-  },
-  {
-   "fieldname": "zepto_customer_mapping",
-   "fieldtype": "Table",
-   "label": "Zepto Customer Mapping",
-   "options": "Zepto Customer Mapping"
   }
  ],
  "grid_page_length": 50,

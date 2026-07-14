@@ -1,0 +1,193 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-07-13 13:32:06.801971",
+ "default_view": "List",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "gocomet_site",
+  "token",
+  "expires_at",
+  "column_break_l5wk",
+  "user_id",
+  "password",
+  "client_group_id",
+  "tracking_details_section",
+  "start_date",
+  "invoice_start_date",
+  "no_of_days_for_invoice_sync",
+  "no_of_days_for_tracking_api",
+  "location",
+  "page_count_for_invoice",
+  "po_status",
+  "column_break_x1yf",
+  "end_date",
+  "no_of_days",
+  "dispatches_section",
+  "dispatch_days",
+  "default_payment_terms_template",
+  "section_break_prle",
+  "gocomet_supplier_mapping",
+  "gocomet_item_mapping",
+  "vendor_type_wise_expense_account_mapping"
+ ],
+ "fields": [
+  {
+   "fieldname": "gocomet_site",
+   "fieldtype": "Data",
+   "label": "Gocomet Site"
+  },
+  {
+   "fieldname": "token",
+   "fieldtype": "Small Text",
+   "label": "Token",
+   "read_only": 1
+  },
+  {
+   "fieldname": "expires_at",
+   "fieldtype": "Data",
+   "label": "Expires at",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_l5wk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "user_id",
+   "fieldtype": "Data",
+   "label": "User Id"
+  },
+  {
+   "fieldname": "password",
+   "fieldtype": "Password",
+   "label": "Password"
+  },
+  {
+   "fieldname": "client_group_id",
+   "fieldtype": "Data",
+   "label": "Client Group Id"
+  },
+  {
+   "fieldname": "tracking_details_section",
+   "fieldtype": "Section Break",
+   "label": "Tracking Details"
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Datetime",
+   "label": "Start Date"
+  },
+  {
+   "default": "today()",
+   "fieldname": "invoice_start_date",
+   "fieldtype": "Date",
+   "label": "Final Approved Date"
+  },
+  {
+   "fieldname": "no_of_days_for_invoice_sync",
+   "fieldtype": "Int",
+   "label": "No. of days for invoice Sync"
+  },
+  {
+   "fieldname": "no_of_days_for_tracking_api",
+   "fieldtype": "Int",
+   "label": "No. of days for Tracking API"
+  },
+  {
+   "fieldname": "location",
+   "fieldtype": "Link",
+   "label": "Location",
+   "options": "Location"
+  },
+  {
+   "fieldname": "page_count_for_invoice",
+   "fieldtype": "Int",
+   "label": "Page Count for Invoice"
+  },
+  {
+   "fieldname": "po_status",
+   "fieldtype": "Select",
+   "label": "PO Status",
+   "options": "Draft\nSubmit"
+  },
+  {
+   "fieldname": "column_break_x1yf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Datetime",
+   "label": "End Date"
+  },
+  {
+   "description": "Days for Updating the Gocomet details in Shipment",
+   "fieldname": "no_of_days",
+   "fieldtype": "Float",
+   "label": "No. of Days"
+  },
+  {
+   "fieldname": "dispatches_section",
+   "fieldtype": "Section Break",
+   "label": "Dispatches"
+  },
+  {
+   "fieldname": "dispatch_days",
+   "fieldtype": "Int",
+   "label": "No. Of Days (Dispatch API)"
+  },
+  {
+   "fieldname": "default_payment_terms_template",
+   "fieldtype": "Link",
+   "label": "Default Payment Term Template",
+   "options": "Payment Terms Template"
+  },
+  {
+   "fieldname": "section_break_prle",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "gocomet_supplier_mapping",
+   "fieldtype": "Table",
+   "label": "Gocomet Supplier Mapping",
+   "options": "Gocomet Supplier Mapping"
+  },
+  {
+   "fieldname": "gocomet_item_mapping",
+   "fieldtype": "Table",
+   "label": "Gocomet Item Mapping",
+   "options": "Gocomet Item Mapping"
+  },
+  {
+   "fieldname": "vendor_type_wise_expense_account_mapping",
+   "fieldtype": "Table",
+   "label": "Vendor Type Wise Expense Account Mapping",
+   "options": "Go Comet Vendor Type Expense Account Mapping"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-07-13 14:02:44.619479",
+ "modified_by": "Administrator",
+ "module": "Lifelong Integrations",
+ "name": "Lifelong Go comet Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

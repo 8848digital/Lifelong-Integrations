@@ -148,25 +148,28 @@ app_license = "mit"
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"lifelong_integrations.tasks.all"
-# 	],
-# 	"daily": [
-# 		"lifelong_integrations.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"lifelong_integrations.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"lifelong_integrations.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"lifelong_integrations.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+	"cron": {
+		"0 */6 * * *": [
+			"lifelong_integrations.lifelong_integrations.doctype.lifelong_zepto_settings.api.get_zepto_po_events",
+			"lifelong_integrations.lifelong_integrations.doctype.lifelong_zepto_settings.api.create_zepto_quotations",
+			"lifelong_integrations.lifelong_integrations.doctype.lifelong_zepto_settings.api.process_pending_asn_shipments",
+		],
+	},
+	"daily": [
+		"lifelong_integrations.lifelong_integrations.api.swiggy_api.quotation.generate_swiggy_quotations",
+		"lifelong_integrations.lifelong_integrations.doctype.lifelong_go_comet_settings.api.generate_token.get_token",
+		"lifelong_integrations.lifelong_integrations.doctype.lifelong_go_comet_settings.api.fetch_live_tracking_data",
+		"lifelong_integrations.lifelong_integrations.doctype.lifelong_go_comet_settings.api.gocomet_shipment_by_scheduler",
+		"lifelong_integrations.lifelong_integrations.doctype.lifelong_go_comet_settings.api.update_po_details_scheduler",
+		"lifelong_integrations.lifelong_integrations.doctype.lifelong_go_comet_settings.api.update_gocomet_details_in_ship",
+		"lifelong_integrations.lifelong_integrations.doctype.lifelong_go_comet_settings.api.fetch_shipments_from_go_comet_to_update_lcv",
+		"lifelong_integrations.lifelong_integrations.doctype.lifelong_go_comet_settings.api.update_shipments",
+		"lifelong_integrations.lifelong_integrations.doctype.lifelong_go_comet_settings.api.create_po_from_gocomet_by_scheduler",
+	],
+}
 
-# Testing
+esting
 # -------
 
 # before_tests = "lifelong_integrations.install.before_tests"
@@ -241,4 +244,3 @@ app_license = "mit"
 # default_log_clearing_doctypes = {
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
-
