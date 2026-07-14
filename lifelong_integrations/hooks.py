@@ -157,11 +157,19 @@ scheduler_events = {
 		],
 	},
 	"daily": [
-		"lifelong_integrations.lifelong_integrations.api.swiggy_api.quotation.generate_swiggy_quotations"
+		"lifelong_integrations.lifelong_integrations.api.swiggy_api.quotation.generate_swiggy_quotations",
+		"lifelong_integrations.lifelong_integrations.doctype.lifelong_go_comet_settings.api.generate_token.get_token",
+		"lifelong_integrations.lifelong_integrations.doctype.lifelong_go_comet_settings.api.fetch_live_tracking_data",
+		"lifelong_integrations.lifelong_integrations.doctype.lifelong_go_comet_settings.api.gocomet_shipment_by_scheduler",
+		"lifelong_integrations.lifelong_integrations.doctype.lifelong_go_comet_settings.api.update_po_details_scheduler",
+		"lifelong_integrations.lifelong_integrations.doctype.lifelong_go_comet_settings.api.update_gocomet_details_in_ship",
+		"lifelong_integrations.lifelong_integrations.doctype.lifelong_go_comet_settings.api.fetch_shipments_from_go_comet_to_update_lcv",
+		"lifelong_integrations.lifelong_integrations.doctype.lifelong_go_comet_settings.api.update_shipments",
+		"lifelong_integrations.lifelong_integrations.doctype.lifelong_go_comet_settings.api.create_po_from_gocomet_by_scheduler",
 	],
 }
 
-# Testing
+# esting
 # -------
 
 # before_tests = "lifelong_integrations.install.before_tests"
