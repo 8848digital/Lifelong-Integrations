@@ -24,7 +24,7 @@ frappe.ui.form.on("Lifelong Go Comet Settings", {
 
 function generate_token(doc) {
 	frappe.call({
-		method: "go_comet.gocomet.customizations.shipment.api.generate_token.get_token",
+		method: "lifelong_integrations.lifelong_integrations.doctype.lifelong_go_comet_settings.api.generate_token.get_token",
 		args: {},
 		callback: function (r) {
 			if (r.message) {
@@ -35,7 +35,7 @@ function generate_token(doc) {
 }
 function create_go_comet_shipment(doc) {
 	frappe.call({
-		method: "go_comet.gocomet.customizations.shipment.api.go_comet_shipment.gocomet_shipment",
+		method: "lifelong_integrations.lifelong_integrations.doctype.lifelong_go_comet_settings.api.go_comet_shipment.gocomet_shipment",
 		args: {},
 		callback: function (r) {
 			if (r.message) {
@@ -46,7 +46,7 @@ function create_go_comet_shipment(doc) {
 }
 function fetch_live_tracking_data(doc) {
 	frappe.call({
-		method: "go_comet.gocomet.customizations.shipment.api.get_tracking_data.fetch_live_tracking_data",
+		method: "lifelong_integrations.lifelong_integrations.doctype.lifelong_go_comet_settings.api.get_tracking_data.fetch_live_tracking_data",
 		args: {},
 		callback: function (r) {
 			if (r.message) {
@@ -58,7 +58,7 @@ function fetch_live_tracking_data(doc) {
 
 function create_po(doc) {
 	frappe.call({
-		method: "go_comet.gocomet.customizations.purchase_order.api.create_po.get_po_from_gocomet",
+		method: "lifelong_integrations.lifelong_integrations.doctype.lifelong_go_comet_settings.api.create_po.get_po_from_gocomet",
 		args: {},
 		callback: function (r) {
 			if (r.message) {
