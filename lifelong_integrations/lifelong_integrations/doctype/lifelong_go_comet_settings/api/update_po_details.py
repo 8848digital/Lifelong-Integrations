@@ -8,6 +8,11 @@ from frappe import _
 
 @frappe.whitelist()
 def update_po_details_scheduler():
+    """
+        Fetch Shipment records from the target site and update Purchase Order details.
+        Runs as a scheduler using the target site's REST API.
+    """
+    
     target_site_url, api_key, api_secret = get_url_details()
 
     headers = {

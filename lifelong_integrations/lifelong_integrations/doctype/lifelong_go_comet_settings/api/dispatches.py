@@ -11,11 +11,14 @@ from lifelong_integrations.lifelong_integrations.doctype.lifelong_gocomet_settin
 	get_charges,
 	go_comet_details,
 )
+from lifelong_integrations.lifelong_integrations.doctype.lifelong_go_comet_settings.api.get_tracking_data import get_url_details
+
 
 
 def create_gocomet_log(
     api=None, method=None, status=None, logs=None, exception=None, shipment_id=None
 ):
+    """ Create logs of shipment updation and creation """
     traceback = frappe.get_traceback(with_context=True)
 
     log = frappe.new_doc("Gocomet Logs")
@@ -40,14 +43,6 @@ def create_gocomet_log(
     log.insert(ignore_permissions=True)
 
 
-def get_url_details():
-    settings = frappe.get_doc("Go Comet Settings")
-
-    return (
-        settings.target_site_url.rstrip("/"),
-        settings.target_site_user_api_key,
-        settings.get_password("target_site_user_api_secret"),
-    )
 
 
 def get_shipments_data():

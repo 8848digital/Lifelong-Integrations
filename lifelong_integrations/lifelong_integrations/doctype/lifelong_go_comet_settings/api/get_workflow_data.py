@@ -5,29 +5,14 @@ import frappe
 import requests
 from frappe import _
 from frappe.utils import flt, add_days
+from lifelong_integrations.lifelong_integrations.doctype.lifelong_go_comet_settings.api.get_tracking_data import get_url_details
 
 
-def get_remote_site_details():
-    settings = frappe.get_single("Lifelong Settings")
 
-    if not settings.target_site_url:
-        frappe.throw("Target site URL not configured")
-
-    if not settings.target_site_user_api_key:
-        frappe.throw("Target site API key not configured")
-
-    if not settings.target_site_user_api_secret:
-        frappe.throw("Target site API secret not configured")
-
-    return (
-        settings.target_site_url.rstrip("/"),
-        settings.target_site_user_api_key,
-        settings.get_password("target_site_user_api_secret"),
-    )
 
 
 def get_remote_headers():
-    target_site_url, api_key, api_secret = get_remote_site_details()
+    target_site_url, api_key, api_secret = get_url_details()
 
     return (
         target_site_url,

@@ -1,0 +1,86 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-09-11 16:30:24.333482",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "shipment_id",
+  "api",
+  "update_shipment",
+  "method",
+  "status",
+  "logs",
+  "traceback"
+ ],
+ "fields": [
+  {
+   "fieldname": "shipment_id",
+   "fieldtype": "Data",
+   "label": "Shipment Id",
+   "read_only": 1
+  },
+  {
+   "fieldname": "api",
+   "fieldtype": "Data",
+   "label": "API",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "update_shipment",
+   "fieldtype": "Check",
+   "label": "Update Shipment",
+   "read_only": 1
+  },
+  {
+   "fieldname": "method",
+   "fieldtype": "Small Text",
+   "label": "Method",
+   "read_only": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Data",
+   "label": "Status",
+   "read_only": 1
+  },
+  {
+   "fieldname": "logs",
+   "fieldtype": "Long Text",
+   "label": "Logs",
+   "read_only": 1
+  },
+  {
+   "fieldname": "traceback",
+   "fieldtype": "Text",
+   "label": "Traceback",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-07-14 13:48:07.969733",
+ "modified_by": "Administrator",
+ "module": "Lifelong Integrations",
+ "name": "Gocomet Logs",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

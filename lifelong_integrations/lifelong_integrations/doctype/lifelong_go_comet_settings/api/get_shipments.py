@@ -12,6 +12,7 @@ from lifelong_integrations.lifelong_integrations.doctype.lifelong_gocomet_settin
 
 
 def get_url_details():
+	""" Get target site details """"
 	target_site_url = frappe.db.get_single_value(
 		"Go Comet Settings", "target_site_url"
 	)
