@@ -30,12 +30,14 @@ def create_swiggy_po_data():
 			)
 			raise e
 
-	po_code = frappe.form_dict.purchase_order.get("purchase_order", {}).get("id")
+	po_code = frappe.form_dict.purchase_order.get("id")
+	vendor_code = frappe.form_dict.purchase_order.get("selling_party", {}).get("id")
 
 	po_data = frappe.new_doc("Swiggy PO Data")
 	po_data.update(
 		{
 			"po_code": po_code,
+			"vendor_code": vendor_code,
 			"event_type": "New PO",
 			"purchase_order": json.dumps(frappe.form_dict.purchase_order, indent=4),
 		}

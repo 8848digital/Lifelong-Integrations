@@ -45,7 +45,6 @@ def generate_swiggy_quotations():
 						"status": "Created",
 						"sync_via": "Quotation",
 						"sync_doc": result.get("quotation_name"),
-						"error_message": None,
 					}
 				)
 				success_count += 1
@@ -58,15 +57,42 @@ def generate_swiggy_quotations():
 
 		except Exception as e:
 			failure_count += 1
-			frappe.log_error(
-				frappe.get_traceback(), f"Swiggy Quotation Failed | PO: {swiggy_po_doc.name}"
+			_log_swiggy_api(
+				api=f"Generate Quotation | PO: {swiggy_po_doc.name}",
+				status="Failed",
+				endpoint=endpoint,
+				payload=swiggy_po_doc.purchase_order,
+				response=str(e),
+				traceback=frappe.get_traceback(),
 			)
-			swiggy_po_doc.error_message = str(e)
 
 		finally:
 			swiggy_po_doc.save(ignore_permissions=True)
 
 	return {"success": success_count, "failed": failure_count}
+
+
+def _log_swiggy_api(
+	api,
+	status,
+	endpoint=None,
+	payload=None,
+	response=None,
+	status_code=None,
+	traceback=None,
+):
+	log = frappe.new_doc("Swiggy API Log")
+	log.api = api
+	log.status = status
+	log.endpoint = endpoint or ""
+	log.payload = frappe.as_json(payload) if not isinstance(payload, str) else payload
+	log.response = (
+		frappe.as_json(response) if not isinstance(response, str) else (response or "")
+	)
+	log.status_code = str(status_code or "")
+	log.traceback = traceback or ""
+	log.insert()
+	frappe.db.commit()
 
 
 @frappe.whitelist()
@@ -84,10 +110,10 @@ def get_pending_swiggy_pos():
 
 
 @frappe.whitelist()
-def update_po_status(po_name, status, sync_via=None, sync_doc=None, error_message=None):
+def update_po_status(po_name, status, sync_via=None, sync_doc=None):
 	"""Called remotely by Live Site to update PO status after processing."""
 	if not frappe.db.exists("Swiggy PO Data", po_name):
-		frappe.throw(f"Swiggy PO Data {po_name} not found")
+		return
 
 	doc = frappe.get_doc("Swiggy PO Data", po_name)
 	doc.status = status
@@ -95,7 +121,6 @@ def update_po_status(po_name, status, sync_via=None, sync_doc=None, error_messag
 		doc.sync_via = sync_via
 	if sync_doc:
 		doc.sync_doc = sync_doc
-	doc.error_message = error_message
 	doc.save(ignore_permissions=True)
 	frappe.db.commit()
 
@@ -105,7 +130,11 @@ def update_po_status(po_name, status, sync_via=None, sync_doc=None, error_messag
 @frappe.whitelist()
 def log_remote_error(title, message):
 	"""Called remotely by Live Site to centralize error logs."""
-	frappe.log_error(title=title, message=message)
+	_log_swiggy_api(
+		api=title,
+		status="Failed",
+		traceback=message,
+	)
 	return {"status": "logged"}
 
 
@@ -119,8 +148,10 @@ def reset_swiggy_po_by_quotation(quotation_name):
 	po_name = frappe.db.get_value("Swiggy PO Data", {"sync_doc": quotation_name}, "name")
 
 	if not po_name:
-		frappe.log_error(
-			f"No Swiggy PO Data found with sync_doc: {quotation_name}", "Swiggy PO Reset Failed"
+		_log_swiggy_api(
+			api="Swiggy PO Reset",
+			status="Failed",
+			traceback=f"No Swiggy PO Data found with sync_doc: {quotation_name}",
 		)
 		return {"status": "not_found"}
 
