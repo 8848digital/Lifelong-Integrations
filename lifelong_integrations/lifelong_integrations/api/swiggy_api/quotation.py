@@ -59,7 +59,7 @@ def generate_swiggy_quotations():
 			failure_count += 1
 			_log_swiggy_api(
 				api=f"Generate Quotation | PO: {swiggy_po_doc.name}",
-				status="Error",
+				status="Failed",
 				endpoint=endpoint,
 				payload=swiggy_po_doc.purchase_order,
 				response=str(e),
@@ -132,7 +132,7 @@ def log_remote_error(title, message):
 	"""Called remotely by Live Site to centralize error logs."""
 	_log_swiggy_api(
 		api=title,
-		status="Error",
+		status="Failed",
 		traceback=message,
 	)
 	return {"status": "logged"}
@@ -150,7 +150,7 @@ def reset_swiggy_po_by_quotation(quotation_name):
 	if not po_name:
 		_log_swiggy_api(
 			api="Swiggy PO Reset",
-			status="Error",
+			status="Failed",
 			traceback=f"No Swiggy PO Data found with sync_doc: {quotation_name}",
 		)
 		return {"status": "not_found"}
