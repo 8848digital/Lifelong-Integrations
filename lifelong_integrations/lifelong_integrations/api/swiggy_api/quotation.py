@@ -31,7 +31,10 @@ def generate_swiggy_quotations():
 				raise Exception("Invalid JSON in purchase_order")
 
 			response = requests.post(
-				endpoint, headers=headers, json={"po_data": data}, timeout=30
+				endpoint,
+				headers=headers,
+				json={"po_data": data, "swiggy_po_data_name": swiggy_po_doc.name},
+				timeout=30,
 			)
 
 			try:
