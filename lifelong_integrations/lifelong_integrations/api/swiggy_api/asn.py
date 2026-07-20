@@ -93,7 +93,9 @@ def trigger_swiggy_asn_sync():
 	if not _is_due("swiggy_asn_sync_last_run", interval):
 		return
 
-	lookback_days = _get_remote_setting(base_url, headers, "asn_lookback_days", 7)
+	lookback_days = _get_remote_setting(base_url, headers, "asn_lookback_days")
+	if not lookback_days:
+		return
 
 	try:
 		resp = requests.post(
@@ -106,7 +108,6 @@ def trigger_swiggy_asn_sync():
 			frappe.log_error(resp.text, "Swiggy ASN scheduler trigger failed")
 	except requests.exceptions.RequestException:
 		frappe.log_error(frappe.get_traceback(), "Swiggy ASN scheduler trigger failed")
-
 
 def _is_due(cache_key, interval_mins):
 	if not interval_mins:
