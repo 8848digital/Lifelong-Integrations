@@ -62,3 +62,61 @@ def submit_swiggy_asn(invoice_payload):
 		log.insert(ignore_permissions=True)
 		frappe.db.commit()
 		return {"error": str(e)}
+
+
+def _get_live_site_connection():
+	config = frappe.get_cached_doc("Lifelong Settings")
+	base_url = config.target_site_url.rstrip("/")
+	headers = {
+		"Authorization": f"token {config.target_site_user_api_key}:{config.get_password('target_site_user_api_secret')}",
+		"Content-Type": "application/json",
+	}
+	return base_url, headers
+
+
+def _get_remote_setting(base_url, headers, fieldname, default=None):
+	resp = requests.get(
+		f"{base_url}/api/method/frappe.client.get_value",
+		params={"doctype": "Swiggy Settings", "fieldname": fieldname},
+		headers=headers,
+		timeout=15,
+	)
+	if not resp.ok:
+		return default
+	return resp.json().get("message", {}).get(fieldname, default)
+
+
+def trigger_swiggy_asn_sync():
+	base_url, headers = _get_live_site_connection()
+
+	interval = _get_remote_setting(base_url, headers, "asn_sync_interval_mins")
+	if not _is_due("swiggy_asn_sync_last_run", interval):
+		return
+
+	lookback_days = _get_remote_setting(base_url, headers, "asn_lookback_days", 7)
+
+	try:
+		resp = requests.post(
+			f"{base_url}/api/method/swiggy_integration.api.swiggy_asn.sync_pending_asn",
+			json={"lookback_days": lookback_days},
+			headers=headers,
+			timeout=60,
+		)
+		if not resp.ok:
+			frappe.log_error(resp.text, "Swiggy ASN scheduler trigger failed")
+	except requests.exceptions.RequestException:
+		frappe.log_error(frappe.get_traceback(), "Swiggy ASN scheduler trigger failed")
+
+
+def _is_due(cache_key, interval_mins):
+	if not interval_mins:
+		return False
+	last_run = frappe.cache().get_value(cache_key)
+	now = frappe.utils.now_datetime()
+	if (
+		last_run
+		and (now - frappe.utils.get_datetime(last_run)).total_seconds() < interval_mins * 60
+	):
+		return False
+	frappe.cache().set_value(cache_key, now)
+	return True
