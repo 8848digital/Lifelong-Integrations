@@ -3,18 +3,21 @@ import json
 import frappe
 import requests
 
+from lifelong_integrations.lifelong_integrations.api.swiggy_api.asn import (
+    _get_live_site_connection, _get_remote_setting, _is_due)
+
 
 def generate_swiggy_quotations():
 	"""Scheduler entry point — pushes each PO to Live Site one at a time."""
-	settings = frappe.get_cached_doc("Lifelong Settings")
+	base_url, headers = _get_live_site_connection()
 
-	live_site_base = settings.target_site_url.rstrip("/")
-	endpoint = f"{live_site_base}/api/method/swiggy_integration.api.quotation.create_quotation_from_swiggy_po"
+	interval = _get_remote_setting(base_url, headers, "quotation_sync_interval_mins")
+	if not _is_due("swiggy_quotation_sync_last_run", interval):
+		return
 
-	headers = {
-		"Authorization": f"token {settings.target_site_user_api_key}:{settings.get_password('target_site_user_api_secret')}",
-		"Content-Type": "application/json",
-	}
+	endpoint = f"{base_url}/api/method/swiggy_integration.api.quotation.create_quotation_from_swiggy_po"
+
+	headers_for_calls = headers
 
 	success_count = 0
 	failure_count = 0
@@ -32,7 +35,7 @@ def generate_swiggy_quotations():
 
 			response = requests.post(
 				endpoint,
-				headers=headers,
+				headers=headers_for_calls,
 				json={"po_data": data, "swiggy_po_data_name": swiggy_po_doc.name},
 				timeout=30,
 			)

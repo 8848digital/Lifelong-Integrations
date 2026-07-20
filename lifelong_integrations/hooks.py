@@ -155,9 +155,12 @@ scheduler_events = {
 			"lifelong_integrations.lifelong_integrations.doctype.lifelong_zepto_settings.api.create_zepto_quotations",
 			"lifelong_integrations.lifelong_integrations.doctype.lifelong_zepto_settings.api.process_pending_asn_shipments",
 		],
+		"*/5 * * * *": [
+			"lifelong_integrations.lifelong_integrations.api.swiggy_api.quotation.generate_swiggy_quotations",
+			"lifelong_integrations.lifelong_integrations.api.swiggy_api.asn.trigger_swiggy_asn_sync",
+		],
 	},
 	"daily": [
-		"lifelong_integrations.lifelong_integrations.api.swiggy_api.quotation.generate_swiggy_quotations",
 		"lifelong_integrations.lifelong_integrations.doctype.lifelong_go_comet_settings.api.generate_token.get_token",
 		"lifelong_integrations.lifelong_integrations.doctype.lifelong_go_comet_settings.api.fetch_live_tracking_data",
 		"lifelong_integrations.lifelong_integrations.doctype.lifelong_go_comet_settings.api.gocomet_shipment_by_scheduler",
