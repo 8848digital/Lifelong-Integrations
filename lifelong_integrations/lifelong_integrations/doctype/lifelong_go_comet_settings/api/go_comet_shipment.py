@@ -2,10 +2,10 @@ import json
 import requests
 import frappe
 from frappe.utils import flt
-.customizations.shipment.doc_events.utility_functions import (
-    containers_count,
-    parcel_items
-)
+# .customizations.shipment.doc_events.utility_functions import (
+#     containers_count,
+#     parcel_items
+# )
 from lifelong_integrations.lifelong_integrations.doctype.lifelong_go_comet_settings.api.get_tracking_data import get_url_details
 
 
@@ -193,7 +193,7 @@ def create_gocomet_payload(shipment_name):
 def gocomet_shipment(shipment_name):
 	
 	self = frappe.get_doc("Shipment",shipment_name)
-	parcel_items(self)
+	# parcel_items(self)
 	payload = create_gocomet_payload(shipment_name)
 	create_gocomet_log(payload, shipment_name)
 	return send_gocomet_request(payload, shipment_name)
