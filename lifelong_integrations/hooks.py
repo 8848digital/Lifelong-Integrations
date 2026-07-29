@@ -159,6 +159,15 @@ scheduler_events = {
 			"lifelong_integrations.lifelong_integrations.api.swiggy_api.quotation.generate_swiggy_quotations",
 			"lifelong_integrations.lifelong_integrations.api.swiggy_api.asn.trigger_swiggy_asn_sync",
 		],
+		"0 */4 * * *": [
+			"lifelong_integrations.lifelong_integrations.doctype.freshdesk_settings.utility_functions.schedulers.get_tickets_scheduler",
+			"lifelong_integrations.lifelong_integrations.doctype.freshdesk_settings.utility_functions.schedulers.create_contact_scheduler",
+			"lifelong_integrations.lifelong_integrations.doctype.freshdesk_settings.utility_functions.schedulers.update_ticket_scheduler",
+		],
+		"0 * * * *": [
+			"lifelong_integrations.lifelong_integrations.doctype.freshdesk_settings.utility_functions.schedulers.update_spare_item_choice_scheduler",
+			"lifelong_integrations.lifelong_integrations.doctype.freshdesk_settings.utility_functions.schedulers.update_category_list_choice_scheduler",
+		],
 	},
 	"daily": [
 		"lifelong_integrations.lifelong_integrations.doctype.lifelong_go_comet_settings.api.generate_token.get_token",

@@ -1,0 +1,127 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-07-28 10:59:12.228211",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "MyISAM",
+ "field_order": [
+  "api",
+  "status",
+  "endpoint",
+  "request_data",
+  "message",
+  "traceback",
+  "doc_type",
+  "doc_name",
+  "status_code",
+  "ticket_id"
+ ],
+ "fields": [
+  {
+   "fieldname": "status",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "message",
+   "fieldtype": "JSON",
+   "label": "Message"
+  },
+  {
+   "fieldname": "traceback",
+   "fieldtype": "Text",
+   "label": "Traceback",
+   "read_only": 1
+  },
+  {
+   "fieldname": "doc_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Doc Type",
+   "options": "DocType",
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "doc_name",
+   "fieldtype": "Dynamic Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Doc Name",
+   "options": "doc_type",
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "request_data",
+   "fieldtype": "JSON",
+   "label": "Request Data"
+  },
+  {
+   "fieldname": "api",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "API",
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "endpoint",
+   "fieldtype": "Text",
+   "in_standard_filter": 1,
+   "label": "EndPoint",
+   "read_only": 1
+  },
+  {
+   "fieldname": "status_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Status Code",
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "ticket_id",
+   "fieldtype": "Data",
+   "in_standard_filter": 1,
+   "label": "Ticket ID",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-07-28 11:01:23.023508",
+ "modified_by": "Administrator",
+ "module": "Lifelong Integrations",
+ "name": "FreshDesk API Log",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "track_seen": 1
+}
