@@ -1,0 +1,163 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-07-28 10:27:32.369446",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "freshdesk_api_integration_section",
+  "enable",
+  "disable_scheduler",
+  "host",
+  "api_key",
+  "apis_available_section",
+  "upload_contacts",
+  "fetch_tickets",
+  "update_ticket_status",
+  "update_spare_items",
+  "update_categorysub_categorymodel",
+  "schedulers_section",
+  "get_tickets_scheduler_interval",
+  "create_contact_scheduler_interval",
+  "update_ticket_scheduler_interval",
+  "column_break_jfep",
+  "get_custom_object_scheduler_interval",
+  "update_spare_item_choice_scheduler_interval",
+  "update_category_list_choice_scheduler_interval"
+ ],
+ "fields": [
+  {
+   "fieldname": "freshdesk_api_integration_section",
+   "fieldtype": "Section Break",
+   "label": "FreshDesk API Integration"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable",
+   "fieldtype": "Check",
+   "label": "Enable"
+  },
+  {
+   "default": "0",
+   "fieldname": "disable_scheduler",
+   "fieldtype": "Check",
+   "label": "Disable Scheduler"
+  },
+  {
+   "fieldname": "host",
+   "fieldtype": "Data",
+   "label": "Host"
+  },
+  {
+   "fieldname": "api_key",
+   "fieldtype": "Password",
+   "label": "API Key"
+  },
+  {
+   "fieldname": "apis_available_section",
+   "fieldtype": "Section Break",
+   "label": "API's Available"
+  },
+  {
+   "default": "0",
+   "fieldname": "upload_contacts",
+   "fieldtype": "Check",
+   "label": "Upload Contacts"
+  },
+  {
+   "default": "0",
+   "fieldname": "fetch_tickets",
+   "fieldtype": "Check",
+   "label": " Fetch Tickets"
+  },
+  {
+   "default": "0",
+   "fieldname": "update_ticket_status",
+   "fieldtype": "Check",
+   "label": "Update Ticket Status"
+  },
+  {
+   "default": "0",
+   "fieldname": "update_spare_items",
+   "fieldtype": "Check",
+   "label": " Update Spare Items"
+  },
+  {
+   "default": "0",
+   "fieldname": "update_categorysub_categorymodel",
+   "fieldtype": "Check",
+   "label": "Update Category/Sub Category/Model"
+  },
+  {
+   "fieldname": "schedulers_section",
+   "fieldtype": "Section Break",
+   "label": "Schedulers"
+  },
+  {
+   "description": "Scheduler to Run Every N mins",
+   "fieldname": "get_tickets_scheduler_interval",
+   "fieldtype": "Int",
+   "label": "Get Tickets Scheduler Interval"
+  },
+  {
+   "description": "Scheduler to Run Every N mins",
+   "fieldname": "create_contact_scheduler_interval",
+   "fieldtype": "Int",
+   "label": "Create Contact Scheduler Interval"
+  },
+  {
+   "description": "Scheduler to Run Every N mins",
+   "fieldname": "update_ticket_scheduler_interval",
+   "fieldtype": "Int",
+   "label": "Update Ticket Scheduler Interval"
+  },
+  {
+   "description": "Scheduler to Run Every N mins",
+   "fieldname": "get_custom_object_scheduler_interval",
+   "fieldtype": "Int",
+   "label": "Get Custom Object Scheduler Interval"
+  },
+  {
+   "description": "Scheduler to Run Every N mins",
+   "fieldname": "update_spare_item_choice_scheduler_interval",
+   "fieldtype": "Int",
+   "label": "Update Spare Item Choice Scheduler Interval"
+  },
+  {
+   "description": "Scheduler to Run Every N mins",
+   "fieldname": "update_category_list_choice_scheduler_interval",
+   "fieldtype": "Int",
+   "label": "Update Category List Choice Scheduler Interval"
+  },
+  {
+   "fieldname": "column_break_jfep",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-07-29 11:29:26.457784",
+ "modified_by": "Administrator",
+ "module": "Lifelong Integrations",
+ "name": "FreshDesk Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
