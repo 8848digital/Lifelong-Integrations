@@ -1,45 +1,45 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2026-06-26 18:28:46.151196",
+ "creation": "2026-07-08 13:51:05.761812",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "base_site_configuration_section",
-  "target_site_url",
-  "target_site_user_api_key",
-  "target_site_user_api_secret"
+  "api_settings_section",
+  "api_base_url",
+  "client_id",
+  "client_secret"
  ],
  "fields": [
   {
-   "fieldname": "target_site_url",
-   "fieldtype": "Data",
-   "label": "Target Site URL"
-  },
-  {
-   "fieldname": "target_site_user_api_key",
-   "fieldtype": "Data",
-   "label": "Target Site User API Key"
-  },
-  {
-   "fieldname": "target_site_user_api_secret",
-   "fieldtype": "Password",
-   "label": "Target Site User API Secret"
-  },
-  {
-   "fieldname": "base_site_configuration_section",
+   "fieldname": "api_settings_section",
    "fieldtype": "Section Break",
-   "label": "Base Site Configuration"
+   "label": "Api Settings"
+  },
+  {
+   "fieldname": "api_base_url",
+   "fieldtype": "Data",
+   "label": "API Base URL"
+  },
+  {
+   "fieldname": "client_id",
+   "fieldtype": "Data",
+   "label": "Client ID"
+  },
+  {
+   "fieldname": "client_secret",
+   "fieldtype": "Password",
+   "label": "Client Secret"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-07-08 18:02:36.449251",
+ "modified": "2026-07-08 13:56:49.018762",
  "modified_by": "Administrator",
  "module": "Lifelong Integrations",
- "name": "Lifelong Settings",
+ "name": "Swiggy Settings",
  "owner": "Administrator",
  "permissions": [
   {

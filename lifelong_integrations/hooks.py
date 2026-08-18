@@ -148,23 +148,14 @@ app_license = "mit"
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"lifelong_integrations.tasks.all"
-# 	],
-# 	"daily": [
-# 		"lifelong_integrations.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"lifelong_integrations.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"lifelong_integrations.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"lifelong_integrations.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+	"cron": {
+		"*/5 * * * *": [
+			"lifelong_integrations.lifelong_integrations.api.swiggy_api.quotation.generate_swiggy_quotations",
+			"lifelong_integrations.lifelong_integrations.api.swiggy_api.asn.trigger_swiggy_asn_sync",
+		],
+	}
+}
 
 # Testing
 # -------
@@ -241,4 +232,3 @@ app_license = "mit"
 # default_log_clearing_doctypes = {
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
-
