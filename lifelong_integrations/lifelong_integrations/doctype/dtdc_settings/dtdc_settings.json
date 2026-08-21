@@ -7,7 +7,11 @@
  "field_order": [
   "url",
   "api_key",
-  "customer_code"
+  "customer_code",
+  "pod_url", 
+  "pod_token",
+  "lr_url",
+  "lr_token"
  ],
  "fields": [
   {
@@ -24,7 +28,27 @@
    "fieldname": "customer_code",
    "fieldtype": "Data",
    "label": "Customer Code"
-  }
+  },
+  {
+   "fieldname": "pod_url",
+   "fieldtype": "Data",
+   "label": "POD Url"
+  },
+  {
+   "fieldname": "pod_token",
+   "fieldtype": "Data",
+   "label": "POD Token"
+  },
+  {
+   "fieldname": "lr_url",
+   "fieldtype": "Data",
+   "label": "LR Url"
+  },
+  {
+   "fieldname": "lr_token",
+   "fieldtype": "Data",
+   "label": "LR Token"
+  }  
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
