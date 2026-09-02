@@ -12,8 +12,10 @@ def submit_swiggy_asn(invoice_payload):
 	url = base_url.rstrip("/") + "/api/v1/edi/invoice/submit"
 	token = settings.client_secret
 
+	invoice_number = (payload.get("invoice") or {}).get("invoice_number") or ""
+
 	log = frappe.new_doc("Swiggy API Log")
-	log.api = "Submit Swiggy ASN"
+	log.api = f"Submit Swiggy ASN | {invoice_number}".strip(" |")
 	log.endpoint = url
 	log.payload = frappe.as_json(payload)
 
@@ -37,31 +39,59 @@ def submit_swiggy_asn(invoice_payload):
 			log.response = resp.text
 			log.traceback = f"Non-JSON response, status {resp.status_code}"
 			log.insert(ignore_permissions=True)
-			frappe.db.commit()
-			return {"error": f"Swiggy returned a non-JSON response (HTTP {resp.status_code})"}
+			return {
+				"status_code": resp.status_code,
+				"error": f"Swiggy returned a non-JSON response (HTTP {resp.status_code})",
+			}
 
 		log.response = frappe.as_json(data)
+
+		# 409 means Swiggy already accepted this idempotency_id. The live site
+		# treats it as an acknowledgement, so it is not logged as a failure.
+		if resp.status_code == 409:
+			log.status = "Success"
+			log.traceback = data.get("message", "")
+			log.insert(ignore_permissions=True)
+			return {"status_code": 409, "ackId": data.get("ackId")}
 
 		if resp.status_code != 200:
 			log.status = "Failed"
 			log.traceback = data.get("message", "")
 			log.insert(ignore_permissions=True)
-			frappe.db.commit()
-			return {"error": data.get("message", "Swiggy ASN submission failed")}
+			return {
+				"status_code": resp.status_code,
+				"error": data.get("message", "Swiggy ASN submission failed"),
+				"code": data.get("code"),
+				"grpc_status": data.get("status"),
+			}
 
 		log.status = "Success"
 		log.insert(ignore_permissions=True)
-		frappe.db.commit()
-		return {"ackId": data.get("ackId")}
+		return {"status_code": resp.status_code, "ackId": data.get("ackId")}
 
 	except requests.exceptions.RequestException as e:
-		log.status_code = str(getattr(e.response, "status_code", 0))
+		status_code = getattr(e.response, "status_code", 0)
+		log.status_code = str(status_code)
 		log.status = "Failed"
 		log.response = getattr(e.response, "text", "")
 		log.traceback = frappe.get_traceback()
 		log.insert(ignore_permissions=True)
-		frappe.db.commit()
-		return {"error": str(e)}
+		return {"status_code": status_code or None, "error": str(e)}
+
+
+@frappe.whitelist()
+def log_asn_error(api=None, payload=None, error=None, status_code=None, shipment=None):
+	"""Record an ASN failure raised on the live site into Swiggy API Log here."""
+	log = frappe.new_doc("Swiggy API Log")
+	log.api = api or "Swiggy ASN"
+	log.status = "Failed"
+	log.status_code = str(status_code) if status_code else ""
+	log.endpoint = f"Shipment: {shipment}" if shipment else ""
+	log.payload = frappe.as_json(frappe.parse_json(payload) if payload else {})
+	log.response = frappe.as_json({"error": error})
+	log.traceback = str(error or "")
+	log.insert(ignore_permissions=True)
+	return log.name
 
 
 def _get_live_site_connection():
@@ -105,9 +135,19 @@ def trigger_swiggy_asn_sync():
 			timeout=60,
 		)
 		if not resp.ok:
-			frappe.log_error(resp.text, "Swiggy ASN scheduler trigger failed")
-	except requests.exceptions.RequestException:
-		frappe.log_error(frappe.get_traceback(), "Swiggy ASN scheduler trigger failed")
+			log_asn_error(
+				api="Swiggy ASN Scheduler",
+				payload={"lookback_days": lookback_days},
+				error=resp.text,
+				status_code=resp.status_code,
+			)
+	except requests.exceptions.RequestException as e:
+		log_asn_error(
+			api="Swiggy ASN Scheduler",
+			payload={"lookback_days": lookback_days},
+			error=f"{e}\n\n{frappe.get_traceback()}",
+		)
+
 
 def _is_due(cache_key, interval_mins):
 	if not interval_mins:
