@@ -8,21 +8,70 @@ from lifelong_integrations.lifelong_integrations.api.swiggy_api.asn import (
 
 
 def generate_swiggy_quotations():
-	"""Scheduler entry point — pushes each PO to Live Site one at a time."""
+	"""
+	Scheduler entry point — pushes all Initiated POs to the Live Site.
+
+	Guarded by ``quotation_sync_interval_mins`` on Swiggy Settings (live
+	site). Set that field to control how often the scheduler actually runs
+	the sync; if the field is 0 / blank the function exits without doing
+	anything.
+	"""
 	base_url, headers = _get_live_site_connection()
 
 	interval = _get_remote_setting(base_url, headers, "quotation_sync_interval_mins")
 	if not _is_due("swiggy_quotation_sync_last_run", interval):
 		return
 
+	return _process_po_quotations(base_url, headers)
+
+
+@frappe.whitelist()
+def create_swiggy_quotations(po_name=None):
+	"""
+	Whitelisted entry point for manual quotation creation.
+
+	Called from:
+	- The 'Generate Quotations' button on Swiggy Settings (po_name=None → all Initiated POs).
+	- The 'Create Quotation' button on a Swiggy PO Data form (po_name supplied → single PO).
+
+	Parameters:
+	        po_name (str, optional): Name of a specific Swiggy PO Data document.
+	            When supplied, only that PO is processed. When omitted, all
+	            Initiated POs are processed.
+
+	Returns:
+	        dict: ``{"success": int, "failed": int}``
+	"""
+	if po_name and frappe.db.get_value("Swiggy PO Data", po_name, "status") != "Initiated":
+		frappe.throw(f"PO {po_name} cannot be processed — only 'Initiated' POs are allowed.")
+
+	base_url, headers = _get_live_site_connection()
+	return _process_po_quotations(base_url, headers, po_name=po_name)
+
+
+def _process_po_quotations(base_url, headers, po_name=None):
+	"""
+	Core loop: push one or all Initiated POs to the Live Site.
+
+	Parameters:
+	        base_url (str): Live site base URL.
+	        headers (dict): Auth headers for Live Site API calls.
+	        po_name (str, optional): If given, process only this PO; otherwise
+	            fetch all Initiated POs.
+
+	Returns:
+	        dict: ``{"success": int, "failed": int}``
+	"""
 	endpoint = f"{base_url}/api/method/swiggy_integration.api.quotation.create_quotation_from_swiggy_po"
 
-	headers_for_calls = headers
+	filters = {"status": "Initiated"}
+	if po_name:
+		filters["name"] = po_name
+
+	po_list = frappe.get_all("Swiggy PO Data", filters=filters)
 
 	success_count = 0
 	failure_count = 0
-
-	po_list = frappe.get_all("Swiggy PO Data", filters={"status": "Initiated"})
 
 	for po in po_list:
 		swiggy_po_doc = frappe.get_doc("Swiggy PO Data", po.name)
@@ -35,9 +84,9 @@ def generate_swiggy_quotations():
 
 			response = requests.post(
 				endpoint,
-				headers=headers_for_calls,
+				headers=headers,
 				json={"po_data": data, "swiggy_po_data_name": swiggy_po_doc.name},
-				timeout=30,
+				timeout=60,
 			)
 
 			try:
@@ -46,6 +95,24 @@ def generate_swiggy_quotations():
 				result = {}
 
 			if response.status_code == 200 and result.get("status") == "success":
+				quotation_name = result.get("quotation_name")
+				swiggy_po_doc.update(
+					{
+						"status": "Created",
+						"sync_via": "Quotation",
+						"sync_doc": quotation_name,
+					}
+				)
+				success_count += 1
+				_log_swiggy_api(
+					api=f"Generate Quotation | PO: {swiggy_po_doc.name}",
+					status="Success",
+					endpoint=endpoint,
+					payload=swiggy_po_doc.purchase_order,
+					response=f"Quotation {quotation_name} created",
+				)
+
+			elif result.get("status") == "duplicate":
 				swiggy_po_doc.update(
 					{
 						"status": "Created",
@@ -134,11 +201,11 @@ def update_po_status(po_name, status, sync_via=None, sync_doc=None):
 
 
 @frappe.whitelist()
-def log_remote_error(title, message):
+def log_remote_error(title, message, status="Failed"):
 	"""Called remotely by Live Site to centralize error logs."""
 	_log_swiggy_api(
 		api=title,
-		status="Failed",
+		status=status,
 		traceback=message,
 	)
 	return {"status": "logged"}
