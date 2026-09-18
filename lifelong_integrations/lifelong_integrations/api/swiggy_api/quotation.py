@@ -19,7 +19,7 @@ def generate_swiggy_quotations():
 	base_url, headers = _get_live_site_connection()
 
 	interval = _get_remote_setting(base_url, headers, "quotation_sync_interval_mins")
-	if not _is_due("swiggy_quotation_sync_last_run", interval):
+	if not _is_due("swiggy_quotation_sync_last_run", int(interval or 0)):
 		return
 
 	return _process_po_quotations(base_url, headers)
