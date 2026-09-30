@@ -120,7 +120,7 @@ def trigger_swiggy_asn_sync():
 	base_url, headers = _get_live_site_connection()
 
 	interval = _get_remote_setting(base_url, headers, "asn_sync_interval_mins")
-	if not _is_due("swiggy_asn_sync_last_run", interval):
+	if not _is_due("swiggy_asn_sync_last_run", int(interval or 0)):
 		return
 
 	lookback_days = _get_remote_setting(base_url, headers, "asn_lookback_days")
