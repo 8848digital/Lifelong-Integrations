@@ -116,11 +116,49 @@ def _get_remote_setting(base_url, headers, fieldname, default=None):
 	return resp.json().get("message", {}).get(fieldname, default)
 
 
+def _set_remote_setting(base_url, headers, fieldname, value):
+	"""Write a single field back to Finance site Swiggy Settings."""
+	requests.post(
+		f"{base_url}/api/method/frappe.client.set_value",
+		json={
+			"doctype": "Swiggy Settings",
+			"name": "Swiggy Settings",
+			"fieldname": fieldname,
+			"value": str(value),
+		},
+		headers=headers,
+		timeout=15,
+	)
+
+
+def _is_due(fieldname, interval_mins, base_url, headers):
+	"""Check if enough time has passed since the last run.
+
+	Reads and writes ``fieldname`` on Finance site Swiggy Settings so the
+	last-run timestamp is visible and controllable from the Finance site
+	System Console — no Redis dependency.
+	"""
+	if not interval_mins:
+		return False
+
+	last_run = _get_remote_setting(base_url, headers, fieldname)
+	now = frappe.utils.now_datetime()
+
+	if (
+		last_run
+		and (now - frappe.utils.get_datetime(last_run)).total_seconds() < interval_mins * 60
+	):
+		return False
+
+	_set_remote_setting(base_url, headers, fieldname, now)
+	return True
+
+
 def trigger_swiggy_asn_sync():
 	base_url, headers = _get_live_site_connection()
 
 	interval = _get_remote_setting(base_url, headers, "asn_sync_interval_mins")
-	if not _is_due("swiggy_asn_sync_last_run", int(interval or 0)):
+	if not _is_due("asn_last_sync_on", int(interval or 0), base_url, headers):
 		return
 
 	lookback_days = _get_remote_setting(base_url, headers, "asn_lookback_days")
@@ -147,17 +185,3 @@ def trigger_swiggy_asn_sync():
 			payload={"lookback_days": lookback_days},
 			error=f"{e}\n\n{frappe.get_traceback()}",
 		)
-
-
-def _is_due(cache_key, interval_mins):
-	if not interval_mins:
-		return False
-	last_run = frappe.cache().get_value(cache_key)
-	now = frappe.utils.now_datetime()
-	if (
-		last_run
-		and (now - frappe.utils.get_datetime(last_run)).total_seconds() < interval_mins * 60
-	):
-		return False
-	frappe.cache().set_value(cache_key, now)
-	return True
