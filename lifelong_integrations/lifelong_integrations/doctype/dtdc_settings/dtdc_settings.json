@@ -1,6 +1,5 @@
 {
  "actions": [],
- "allow_rename": 1,
  "creation": "2026-08-10 16:29:19.829559",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -8,10 +7,11 @@
   "url",
   "api_key",
   "customer_code",
-  "pod_url", 
+  "pod_url",
   "pod_token",
   "lr_url",
-  "lr_token"
+  "lr_token",
+  "look_back_days"
  ],
  "fields": [
   {
@@ -48,13 +48,18 @@
    "fieldname": "lr_token",
    "fieldtype": "Data",
    "label": "LR Token"
-  }  
+  },
+  {
+   "fieldname": "look_back_days",
+   "fieldtype": "Int",
+   "label": "Look Back Days"
+  }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-08-11 11:24:04.891134",
+ "modified": "2026-10-07 18:25:04.328977",
  "modified_by": "Administrator",
  "module": "Lifelong Integrations",
  "name": "DTDC Settings",
