@@ -239,6 +239,23 @@ def get_field_mapping(integration_name="Decathlon"):
 	}
 
 
+def get_mapping_channel(integration_name="Decathlon"):
+	"""Return the UniCommerce channel set on the Field Mapping record for
+	the given integration. Raises an error if it is not set."""
+	channel = frappe.db.get_value(
+		"Field Mapping", {"integration": integration_name}, "channel"
+	)
+
+	if not channel:
+		frappe.throw(
+			_("Channel is not set in Field Mapping for integration {0}.").format(
+				integration_name
+			)
+		)
+
+	return channel
+
+
 def get_mapped_value(source, unicommerce_field, mapping, default=""):
 	"""Fetch a value out of `source` using the Decathlon field name
 	configured for `unicommerce_field`. Falls back to `unicommerce_field`
@@ -367,13 +384,16 @@ def build_sale_order_items(order_code, order_lines, mapping):
 	return items
 
 
-def build_unicommerce_payload(order, mapping=None):
+def build_unicommerce_payload(order, mapping=None, channel=None):
 	"""Build a UniCommerce sale order payload.
 	Safely maps customer, address, and item information using
 	the configured Decathlon <-> ERP field mapping.
 	"""
 	if mapping is None:
 		mapping = get_field_mapping()
+
+	if not channel:
+		channel = get_mapping_channel()
 
 	order_code = get_mapped_value(order, "code", mapping)
 
@@ -425,7 +445,7 @@ def build_unicommerce_payload(order, mapping=None):
 			"customerCode": customer_code,
 			"customerName": customer_name,
 			"customerGSTIN": "",
-			"channel": "CUSTOM",
+			"channel": channel,
 			"notificationEmail": email,
 			"notificationMobile": phone,
 			"cashOnDelivery": False,
@@ -540,8 +560,8 @@ def create_unicommerce_order(data):
 		f"https://{credentials['unicommerce_site']}" "/services/rest/v1/oms/saleOrder/create"
 	)
 
-	# Load the field mapping once and reuse it for every order.
 	mapping = get_field_mapping()
+	channel = get_mapping_channel()
 
 	results = []
 
@@ -549,7 +569,7 @@ def create_unicommerce_order(data):
 		order_id = order.get("order_id")
 
 		try:
-			payload = build_unicommerce_payload(order, mapping)
+			payload = build_unicommerce_payload(order, mapping, channel)
 
 			create_decathlon_log("UniCommerce Order Payload", response=payload)
 

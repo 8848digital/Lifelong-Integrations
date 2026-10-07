@@ -8,6 +8,9 @@
  "field_order": [
   "integration",
   "api_name",
+  "column_break_oakw",
+  "channel",
+  "section_break_szbq",
   "decathlon_field_mapping"
  ],
  "fields": [
@@ -29,12 +32,25 @@
    "fieldtype": "Table",
    "label": "Decathlon Field Mapping",
    "options": "Decathlon Field Mapping"
+  },
+  {
+   "fieldname": "column_break_oakw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "channel",
+   "fieldtype": "Data",
+   "label": "Channel"
+  },
+  {
+   "fieldname": "section_break_szbq",
+   "fieldtype": "Section Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-10-01 16:00:07.451301",
+ "modified": "2026-10-07 18:29:03.082092",
  "modified_by": "Administrator",
  "module": "Lifelong Integrations",
  "name": "Field Mapping",
