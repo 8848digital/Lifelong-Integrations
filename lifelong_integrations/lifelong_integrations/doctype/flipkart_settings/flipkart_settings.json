@@ -1,0 +1,210 @@
+{
+ "actions": [],
+ "creation": "2026-10-13 12:48:06.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "enabled",
+  "auto_push_to_erp",
+  "inbound_section",
+  "inbound_client_id",
+  "inbound_client_secret",
+  "inbound_scope",
+  "token_ttl_seconds",
+  "column_break_inbound",
+  "integration_user",
+  "inbound_ip_allowlist",
+  "endpoint_urls",
+  "outbound_section",
+  "environment",
+  "client_id",
+  "client_secret",
+  "target_client_id",
+  "column_break_outbound",
+  "uat_api_base_url",
+  "uat_token_url",
+  "production_api_base_url",
+  "production_token_url",
+  "ack_section",
+  "ack_window_hours",
+  "hyperlocal_ack_window_hours",
+  "column_break_ack",
+  "hyperlocal_ship_to_ids"
+ ],
+ "fields": [
+  {
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled",
+   "default": "0"
+  },
+  {
+   "fieldname": "auto_push_to_erp",
+   "fieldtype": "Check",
+   "label": "Push POs to ERP on Receipt",
+   "default": "1",
+   "description": "Queue the PO for Quotation creation on the ERP site as soon as it is received. The 5-minute scheduler retries anything still pending."
+  },
+  {
+   "fieldname": "inbound_section",
+   "fieldtype": "Section Break",
+   "label": "Inbound: Flipkart to Gateway (Egress Notifications)"
+  },
+  {
+   "fieldname": "inbound_client_id",
+   "fieldtype": "Data",
+   "label": "Client ID (shared with Flipkart)"
+  },
+  {
+   "fieldname": "inbound_client_secret",
+   "fieldtype": "Password",
+   "label": "Client Secret (shared with Flipkart)",
+   "length": 255
+  },
+  {
+   "fieldname": "inbound_scope",
+   "fieldtype": "Data",
+   "label": "Scope",
+   "default": "flipkart.retail.notifications"
+  },
+  {
+   "fieldname": "token_ttl_seconds",
+   "fieldtype": "Int",
+   "label": "Token Lifetime (seconds)",
+   "default": "3600",
+   "description": "Flipkart rejects tokens that live longer than 3600 seconds."
+  },
+  {
+   "fieldname": "column_break_inbound",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "integration_user",
+   "fieldtype": "Link",
+   "label": "Run Notifications As",
+   "options": "User",
+   "description": "User the webhook and callbacks run as after the Bearer token is verified. Defaults to Administrator."
+  },
+  {
+   "fieldname": "inbound_ip_allowlist",
+   "fieldtype": "Small Text",
+   "label": "Allowed Source IPs / CIDRs",
+   "description": "One per line. Flipkart: 103.4.255.64/26 (UAT and Production). Leave empty to skip the check here (nginx should enforce it too)."
+  },
+  {
+   "fieldname": "endpoint_urls",
+   "fieldtype": "HTML",
+   "label": "Endpoint URLs"
+  },
+  {
+   "fieldname": "outbound_section",
+   "fieldtype": "Section Break",
+   "label": "Outbound: Gateway to Flipkart (Ingress APIs)"
+  },
+  {
+   "fieldname": "environment",
+   "fieldtype": "Select",
+   "label": "Environment",
+   "options": "UAT\nProduction",
+   "default": "UAT"
+  },
+  {
+   "fieldname": "client_id",
+   "fieldtype": "Data",
+   "label": "Client ID (issued by Flipkart)"
+  },
+  {
+   "fieldname": "client_secret",
+   "fieldtype": "Password",
+   "label": "Client Secret (issued by Flipkart)",
+   "length": 255
+  },
+  {
+   "fieldname": "target_client_id",
+   "fieldtype": "Data",
+   "label": "Target Client ID"
+  },
+  {
+   "fieldname": "column_break_outbound",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "uat_api_base_url",
+   "fieldtype": "Data",
+   "label": "UAT API Base URL",
+   "default": "https://edigateway-uat.api.flipkart.com"
+  },
+  {
+   "fieldname": "uat_token_url",
+   "fieldtype": "Data",
+   "label": "UAT Token URL",
+   "default": "https://authn.flipkart.net/v3/oauth/token"
+  },
+  {
+   "fieldname": "production_api_base_url",
+   "fieldtype": "Data",
+   "label": "Production API Base URL",
+   "default": "https://retail-edi.api.flipkart.net"
+  },
+  {
+   "fieldname": "production_token_url",
+   "fieldtype": "Data",
+   "label": "Production Token URL",
+   "default": "https://authn.flipkart.net/v3/oauth/token"
+  },
+  {
+   "fieldname": "ack_section",
+   "fieldtype": "Section Break",
+   "label": "PO Acknowledgement"
+  },
+  {
+   "fieldname": "ack_window_hours",
+   "fieldtype": "Int",
+   "label": "ACK Window (hours)",
+   "default": "168",
+   "description": "Flipkart treats a PO as dormant if it is not acknowledged in time: 7 days for regular POs."
+  },
+  {
+   "fieldname": "hyperlocal_ack_window_hours",
+   "fieldtype": "Int",
+   "label": "Hyperlocal ACK Window (hours)",
+   "default": "24"
+  },
+  {
+   "fieldname": "column_break_ack",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "hyperlocal_ship_to_ids",
+   "fieldtype": "Small Text",
+   "label": "Hyperlocal / Flipkart Minutes Ship-To IDs",
+   "description": "One Flipkart fulfilment-centre ID (buyer.shipTo.id) per line. POs for these get the hyperlocal ACK window."
+  }
+ ],
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-10-13 12:48:06.000000",
+ "modified_by": "Administrator",
+ "module": "Lifelong Integrations",
+ "name": "Flipkart Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}
