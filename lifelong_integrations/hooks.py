@@ -154,6 +154,7 @@ scheduler_events = {
 			"lifelong_integrations.lifelong_integrations.doctype.lifelong_zepto_settings.api.get_zepto_po_events",
 			"lifelong_integrations.lifelong_integrations.doctype.lifelong_zepto_settings.api.create_zepto_quotations",
 			"lifelong_integrations.lifelong_integrations.doctype.lifelong_zepto_settings.api.process_pending_asn_shipments",
+			"lifelong_integrations.lifelong_integrations.api.decathlon_api.get_orders.get_orders_scheduler",
 		],
 		"*/5 * * * *": [
 			"lifelong_integrations.lifelong_integrations.api.swiggy_api.quotation.generate_swiggy_quotations",

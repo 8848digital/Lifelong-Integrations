@@ -6,24 +6,111 @@
  "engine": "InnoDB",
  "field_order": [
   "title",
+  "log_type",
+  "status",
+  "column_break_summary",
+  "decathlon_order_id",
+  "http_status",
+  "request_url",
+  "message_section",
+  "message",
+  "error_message",
+  "request_section",
   "payload",
+  "response_section",
   "response",
-  "message"
+  "traceback_section",
+  "traceback"
  ],
  "fields": [
   {
    "fieldname": "title",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "in_standard_filter": 1,
    "label": "Title",
    "read_only": 1
+  },
+  {
+   "description": "Which step of the integration this log is for.",
+   "fieldname": "log_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Log Type",
+   "options": "\nDecathlon - Get Orders\nUniCommerce - Create Sale Order\nUniCommerce - Login",
+   "read_only": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "\nSuccess\nFailed\nSkipped",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_summary",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "decathlon_order_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Decathlon Order ID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "http_status",
+   "fieldtype": "Int",
+   "label": "HTTP Status Code",
+   "read_only": 1
+  },
+  {
+   "fieldname": "request_url",
+   "fieldtype": "Small Text",
+   "label": "Request URL",
+   "read_only": 1
+  },
+  {
+   "fieldname": "message_section",
+   "fieldtype": "Section Break",
+   "label": "Result"
+  },
+  {
+   "fieldname": "message",
+   "fieldtype": "Long Text",
+   "label": "Message",
+   "read_only": 1
+  },
+  {
+   "depends_on": "error_message",
+   "fieldname": "error_message",
+   "fieldtype": "Long Text",
+   "label": "Error Message",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "collapsible_depends_on": "payload",
+   "fieldname": "request_section",
+   "fieldtype": "Section Break",
+   "label": "Request Payload"
   },
   {
    "fieldname": "payload",
    "fieldtype": "Code",
    "label": "Payload",
+   "options": "JSON",
    "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "collapsible_depends_on": "response",
+   "fieldname": "response_section",
+   "fieldtype": "Section Break",
+   "label": "Response"
   },
   {
    "fieldname": "response",
@@ -32,9 +119,16 @@
    "read_only": 1
   },
   {
-   "fieldname": "message",
-   "fieldtype": "Long Text",
-   "label": "Message",
+   "collapsible": 1,
+   "depends_on": "traceback",
+   "fieldname": "traceback_section",
+   "fieldtype": "Section Break",
+   "label": "Traceback"
+  },
+  {
+   "fieldname": "traceback",
+   "fieldtype": "Code",
+   "label": "Traceback",
    "read_only": 1
   }
  ],
@@ -42,7 +136,7 @@
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-10-01 16:24:26.568140",
+ "modified": "2026-10-15 14:00:00.000000",
  "modified_by": "Administrator",
  "module": "Lifelong Integrations",
  "name": "Decathlon Logs",
@@ -65,5 +159,6 @@
  "rows_threshold_for_grid_search": 20,
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "title_field": "title"
 }
