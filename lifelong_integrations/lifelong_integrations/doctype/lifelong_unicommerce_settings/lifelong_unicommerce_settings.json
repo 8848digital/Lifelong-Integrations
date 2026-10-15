@@ -1,0 +1,112 @@
+{
+ "actions": [],
+ "creation": "2026-10-15 14:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "connection_section",
+  "unicommerce_site",
+  "client_id",
+  "facility_code",
+  "column_break_conn",
+  "username",
+  "password",
+  "token_section",
+  "access_token",
+  "column_break_token",
+  "expires_on"
+ ],
+ "fields": [
+  {
+   "fieldname": "connection_section",
+   "fieldtype": "Section Break",
+   "label": "UniCommerce Connection"
+  },
+  {
+   "description": "Without https://, e.g. stglifelong.unicommerce.com",
+   "fieldname": "unicommerce_site",
+   "fieldtype": "Data",
+   "label": "UniCommerce Site",
+   "reqd": 1
+  },
+  {
+   "default": "my-trusted-client",
+   "fieldname": "client_id",
+   "fieldtype": "Data",
+   "label": "Client ID",
+   "reqd": 1
+  },
+  {
+   "description": "Sent as the Facility header and on every sale order item.",
+   "fieldname": "facility_code",
+   "fieldtype": "Data",
+   "label": "Facility Code",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_conn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "username",
+   "fieldtype": "Data",
+   "label": "Username",
+   "reqd": 1
+  },
+  {
+   "fieldname": "password",
+   "fieldtype": "Password",
+   "label": "Password",
+   "reqd": 1
+  },
+  {
+   "collapsible": 1,
+   "description": "Filled in automatically when the integration logs in to UniCommerce.",
+   "fieldname": "token_section",
+   "fieldtype": "Section Break",
+   "label": "Access Token"
+  },
+  {
+   "fieldname": "access_token",
+   "fieldtype": "Password",
+   "label": "Access Token",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_token",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "expires_on",
+   "fieldtype": "Datetime",
+   "label": "Token Expires On",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-10-15 14:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Lifelong Integrations",
+ "name": "Lifelong Unicommerce Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
