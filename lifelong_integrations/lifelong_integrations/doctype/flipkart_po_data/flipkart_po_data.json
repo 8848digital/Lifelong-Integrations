@@ -1,0 +1,239 @@
+{
+ "actions": [],
+ "autoname": "FKPO-.YY.-.######",
+ "creation": "2026-10-13 12:48:06.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "po_number",
+  "event_type",
+  "status",
+  "order_date",
+  "expiry_date",
+  "column_break_1",
+  "ship_from_id",
+  "ship_to_id",
+  "ship_to_name",
+  "line_count",
+  "total_qty",
+  "grand_total",
+  "sync_section",
+  "sync_via",
+  "sync_doc",
+  "sync_message",
+  "column_break_2",
+  "delivery_uuid",
+  "payload_hash",
+  "dedupe_key",
+  "ack_section",
+  "ack_status",
+  "ack_due_by",
+  "ack_sent_on",
+  "column_break_3",
+  "ack_correlation_id",
+  "ack_error",
+  "payload_section",
+  "purchase_order"
+ ],
+ "fields": [
+  {
+   "fieldname": "po_number",
+   "fieldtype": "Data",
+   "label": "PO Number",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "search_index": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "event_type",
+   "fieldtype": "Select",
+   "label": "Event Type",
+   "options": "PO_CREATE\nPO_EDIT",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Initiated\nCreated\nEdit Applied\nEdit Review\nFailed\nCancelled",
+   "default": "Initiated",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "order_date",
+   "fieldtype": "Date",
+   "label": "Order Date"
+  },
+  {
+   "fieldname": "expiry_date",
+   "fieldtype": "Date",
+   "label": "Expiry Date"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "ship_from_id",
+   "fieldtype": "Data",
+   "label": "Ship From ID (Vendor Site)",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "ship_to_id",
+   "fieldtype": "Data",
+   "label": "Ship To ID (Flipkart FC)",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "ship_to_name",
+   "fieldtype": "Data",
+   "label": "Ship To Name"
+  },
+  {
+   "fieldname": "line_count",
+   "fieldtype": "Int",
+   "label": "Lines"
+  },
+  {
+   "fieldname": "total_qty",
+   "fieldtype": "Float",
+   "label": "Total FSN Qty"
+  },
+  {
+   "fieldname": "grand_total",
+   "fieldtype": "Float",
+   "label": "Grand Total"
+  },
+  {
+   "fieldname": "sync_section",
+   "fieldtype": "Section Break",
+   "label": "ERP Sync"
+  },
+  {
+   "fieldname": "sync_via",
+   "fieldtype": "Data",
+   "label": "Sync Via",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sync_doc",
+   "fieldtype": "Data",
+   "label": "Sync Doc",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sync_message",
+   "fieldtype": "Small Text",
+   "label": "Sync Message",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "delivery_uuid",
+   "fieldtype": "Data",
+   "label": "Delivery UUID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "payload_hash",
+   "fieldtype": "Data",
+   "label": "Payload Hash",
+   "read_only": 1
+  },
+  {
+   "fieldname": "dedupe_key",
+   "fieldtype": "Data",
+   "label": "Dedupe Key",
+   "read_only": 1,
+   "unique": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "ack_section",
+   "fieldtype": "Section Break",
+   "label": "PO Acknowledgement"
+  },
+  {
+   "fieldname": "ack_status",
+   "fieldtype": "Select",
+   "label": "ACK Status",
+   "options": "\nPending\nSent\nFailed\nNot Required",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "ack_due_by",
+   "fieldtype": "Datetime",
+   "label": "ACK Due By",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ack_sent_on",
+   "fieldtype": "Datetime",
+   "label": "ACK Sent On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "ack_correlation_id",
+   "fieldtype": "Data",
+   "label": "ACK Correlation ID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ack_error",
+   "fieldtype": "Small Text",
+   "label": "ACK Error",
+   "read_only": 1
+  },
+  {
+   "fieldname": "payload_section",
+   "fieldtype": "Section Break",
+   "label": "Payload"
+  },
+  {
+   "fieldname": "purchase_order",
+   "fieldtype": "JSON",
+   "label": "Purchase Order"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-10-13 12:48:06.000000",
+ "modified_by": "Administrator",
+ "module": "Lifelong Integrations",
+ "name": "Flipkart PO Data",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "search_fields": "po_number",
+ "show_title_field_in_link": 0,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "po_number"
+}

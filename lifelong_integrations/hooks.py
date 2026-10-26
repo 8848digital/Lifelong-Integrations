@@ -159,6 +159,8 @@ scheduler_events = {
 		"*/5 * * * *": [
 			"lifelong_integrations.lifelong_integrations.api.swiggy_api.quotation.generate_swiggy_quotations",
 			"lifelong_integrations.lifelong_integrations.api.swiggy_api.asn.trigger_swiggy_asn_sync",
+			"lifelong_integrations.lifelong_integrations.api.flipkart_api.po.scheduled_push_pending_pos",
+			"lifelong_integrations.lifelong_integrations.api.flipkart_api.asn.scheduled_push_consignment_status",
 		],
 		"0 */4 * * *": [
 			"lifelong_integrations.lifelong_integrations.doctype.freshdesk_settings.utility_functions.schedulers.get_tickets_scheduler",
@@ -246,6 +248,8 @@ scheduler_events = {
 
 # Authentication and authorization
 # --------------------------------
+
+auth_hooks = ["lifelong_integrations.lifelong_integrations.api.flipkart_api.auth.authenticate_flipkart_request"]
 
 # auth_hooks = [
 # 	"lifelong_integrations.auth.validate"
