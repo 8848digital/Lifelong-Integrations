@@ -6,7 +6,10 @@
  "field_order": [
   "url",
   "token",
+  "enable_auto_sync",
+  "order_period_section",
   "no_of_days_to_get_orders",
+  "column_break_period",
   "start_date",
   "end_date"
  ],
@@ -22,18 +25,37 @@
    "label": "Token"
   },
   {
+   "default": "0",
+   "description": "Get orders from Decathlon and send them to UniCommerce every 6 hours, using the No. of Days or Start Date and End Date below.",
+   "fieldname": "enable_auto_sync",
+   "fieldtype": "Check",
+   "label": "Get Orders Automatically"
+  },
+  {
+   "description": "Fill either No. of Days to get orders, or Start Date and End Date.",
+   "fieldname": "order_period_section",
+   "fieldtype": "Section Break",
+   "label": "Orders to Fetch"
+  },
+  {
+   "description": "Fetch orders from this many days before today until today. E.g. 3 on 15 Oct fetches orders from 12 Oct to 15 Oct.",
    "fieldname": "no_of_days_to_get_orders",
    "fieldtype": "Int",
-   "label": "No. of Days to get orders"
+   "label": "No. of Days to get orders",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "column_break_period",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "start_date",
-   "fieldtype": "Datetime",
+   "fieldtype": "Date",
    "label": "Start Date"
   },
   {
    "fieldname": "end_date",
-   "fieldtype": "Datetime",
+   "fieldtype": "Date",
    "label": "End Date"
   }
  ],
@@ -41,7 +63,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-10-01 15:57:46.909184",
+ "modified": "2026-10-15 18:30:00.000000",
  "modified_by": "Administrator",
  "module": "Lifelong Integrations",
  "name": "Decathlon Settings",

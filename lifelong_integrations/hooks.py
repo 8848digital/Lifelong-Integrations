@@ -150,6 +150,9 @@ app_license = "mit"
 
 scheduler_events = {
 	"cron": {
+		"0 */6 * * *": [
+			"lifelong_integrations.lifelong_integrations.api.decathlon_api.get_orders.get_orders_scheduler",
+		],
 		"*/5 * * * *": [
 			"lifelong_integrations.lifelong_integrations.api.swiggy_api.quotation.generate_swiggy_quotations",
 			"lifelong_integrations.lifelong_integrations.api.swiggy_api.asn.trigger_swiggy_asn_sync",
