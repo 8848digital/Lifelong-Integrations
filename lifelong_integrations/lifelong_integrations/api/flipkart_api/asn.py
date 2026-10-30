@@ -20,6 +20,7 @@ import frappe
 from lifelong_integrations.lifelong_integrations.api.flipkart_api.utils import (
 	call_erp,
 	call_flipkart,
+	check_flipkart_access,
 	create_api_log,
 	new_request_id,
 )
@@ -49,6 +50,7 @@ CONSIGNMENT_FIELDS = [
 @frappe.whitelist()
 def schedule_consignment(shipment, payload):
 	"""Schedule a new consignment, or move the date of an already scheduled one."""
+	check_flipkart_access()
 	payload = frappe.parse_json(payload)
 	consignment = _get_or_new_consignment(shipment)
 	is_update = bool(consignment.forward_consignment_id)
@@ -96,6 +98,7 @@ def schedule_consignment(shipment, payload):
 
 @frappe.whitelist()
 def dispatch_consignment(shipment, payload, dispatch_mode="Non Box Label"):
+	check_flipkart_access()
 	payload = frappe.parse_json(payload)
 	if dispatch_mode not in DISPATCH_PATHS:
 		frappe.throw(f"Unknown dispatch mode {dispatch_mode}")
@@ -134,6 +137,7 @@ def dispatch_consignment(shipment, payload, dispatch_mode="Non Box Label"):
 
 @frappe.whitelist()
 def submit_invoice(shipment, sales_invoice, payload):
+	check_flipkart_access()
 	payload = frappe.parse_json(payload)
 	consignment = _get_consignment(shipment)
 	if not consignment.forward_consignment_id:
@@ -158,6 +162,7 @@ def submit_invoice(shipment, sales_invoice, payload):
 
 @frappe.whitelist()
 def get_consignment(shipment):
+	check_flipkart_access()
 	name = frappe.db.get_value("Flipkart Consignment", {"shipment": shipment}, "name")
 	if not name:
 		return None

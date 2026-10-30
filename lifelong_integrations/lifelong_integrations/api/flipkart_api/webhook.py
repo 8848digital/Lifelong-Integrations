@@ -13,6 +13,7 @@ import json
 import time
 
 import frappe
+from frappe.rate_limiter import rate_limit
 from frappe.utils import add_to_date, getdate, now_datetime
 
 from lifelong_integrations.lifelong_integrations.api.flipkart_api.auth import get_auth_error_response
@@ -29,6 +30,11 @@ from lifelong_integrations.lifelong_integrations.api.flipkart_api.utils import (
 )
 
 PO_NOTIFICATION_TYPES = ("PO_CREATE", "PO_EDIT")
+# A notification larger than this is refused (413) and its body is not stored
+MAX_BODY_BYTES = 5 * 1024 * 1024
+# per source IP, for each webhook
+WEBHOOK_RATE_LIMIT = 1200
+WEBHOOK_RATE_WINDOW = 60
 
 
 class NotificationError(Exception):
@@ -40,18 +46,21 @@ class NotificationError(Exception):
 
 
 @frappe.whitelist(allow_guest=True, methods=["POST"])
+@rate_limit(limit=WEBHOOK_RATE_LIMIT, seconds=WEBHOOK_RATE_WINDOW)
 def po_notification():
 	"""Webhook endpoint registered with Flipkart for PO_CREATE and PO_EDIT."""
 	return _handle("Flipkart PO Notification", _process_po_notification)
 
 
 @frappe.whitelist(allow_guest=True, methods=["POST"])
+@rate_limit(limit=WEBHOOK_RATE_LIMIT, seconds=WEBHOOK_RATE_WINDOW)
 def consignment_schedule_callback():
 	"""Callback endpoint for the Consignment Schedule response (ASN step 2)."""
 	return _handle("Flipkart Consignment Schedule Callback", _process_schedule_callback)
 
 
 @frappe.whitelist(allow_guest=True, methods=["POST"])
+@rate_limit(limit=WEBHOOK_RATE_LIMIT, seconds=WEBHOOK_RATE_WINDOW)
 def document_ack_callback():
 	"""Callback endpoint for the ASN / document acknowledgement (ASN step 4)."""
 	return _handle("Flipkart Document Ack Callback", _process_document_callback)
@@ -65,14 +74,15 @@ def _handle(api, processor):
 	raw_body = frappe.request.get_data(as_text=True) if frappe.request else ""
 	reference = None
 
-	def log(status, status_code, response, traceback=None):
+	def log(status, status_code, response, traceback=None, store_body=True):
 		create_api_log(
 			api=api,
 			direction="Inbound",
 			status=status,
 			status_code=status_code,
 			endpoint=frappe.request.path if frappe.request else None,
-			payload=raw_body,
+			# a request that is not authenticated (or too large) can't make the log grow by its body
+			payload=raw_body if store_body else f"(body not stored: {len(raw_body.encode())} bytes)",
 			response=response,
 			reference=reference,
 			request_id=frappe.get_request_header("X-Request-Id") or delivery_uuid,
@@ -84,8 +94,13 @@ def _handle(api, processor):
 
 	auth_error = get_auth_error_response()
 	if auth_error is not None:
-		log("Failed", auth_error.status_code, auth_error.get_data(as_text=True))
+		log("Failed", auth_error.status_code, auth_error.get_data(as_text=True), store_body=False)
 		return auth_error
+
+	if len(raw_body.encode()) > MAX_BODY_BYTES:
+		response = error_response(413, VALIDATION_FAILED, f"Request body is larger than {MAX_BODY_BYTES} bytes")
+		log("Failed", 413, response.get_data(as_text=True), store_body=False)
+		return response
 
 	try:
 		try:
@@ -197,7 +212,7 @@ def _process_po_notification(body, notification_type, delivery_uuid):
 
 	if created and settings.auto_push_to_erp:
 		frappe.enqueue(
-			"lifelong_integrations.lifelong_integrations.api.flipkart_api.po.push_pending_pos",
+			"lifelong_integrations.lifelong_integrations.api.flipkart_api.po._push_pending_pos",
 			queue="short",
 			job_id="flipkart_push_pending_pos",
 			deduplicate=True,

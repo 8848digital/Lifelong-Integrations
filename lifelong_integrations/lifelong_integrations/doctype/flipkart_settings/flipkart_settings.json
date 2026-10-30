@@ -83,7 +83,8 @@
    "fieldtype": "Link",
    "label": "Run Notifications As",
    "options": "User",
-   "description": "User the webhook and callbacks run as after the Bearer token is verified. Defaults to Administrator."
+   "description": "Dedicated user the webhook and callbacks run as after the Bearer token is verified. Required while enabled; not Administrator or a System Manager (a user without roles is enough).",
+   "mandatory_depends_on": "eval:doc.enabled"
   },
   {
    "fieldname": "inbound_ip_allowlist",
@@ -183,7 +184,7 @@
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-10-13 12:48:06.000000",
+ "modified": "2026-10-30 18:00:00.000000",
  "modified_by": "Administrator",
  "module": "Lifelong Integrations",
  "name": "Flipkart Settings",
