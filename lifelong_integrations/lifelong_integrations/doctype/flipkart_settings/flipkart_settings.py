@@ -14,12 +14,24 @@ class FlipkartSettings(Document):
 	def validate(self):
 		if self.token_ttl_seconds and not 60 <= self.token_ttl_seconds <= MAX_TOKEN_TTL:
 			frappe.throw(f"Token Lifetime must be between 60 and {MAX_TOKEN_TTL} seconds (Flipkart limit)")
+		self.validate_integration_user()
 		for line in (self.inbound_ip_allowlist or "").splitlines():
 			if line.strip():
 				try:
 					ipaddress.ip_network(line.strip(), strict=False)
 				except ValueError:
 					frappe.throw(f"Invalid IP address / CIDR in allowlist: {line.strip()}")
+
+	def validate_integration_user(self):
+		"""Flipkart's requests run as this user: required while enabled, never Administrator or a System Manager."""
+		if not self.integration_user:
+			if self.enabled:
+				frappe.throw("Set Run Notifications As (a dedicated user) before enabling the Flipkart integration")
+			return
+		if self.integration_user in ("Administrator", "Guest"):
+			frappe.throw("Run Notifications As can't be Administrator or Guest: use a dedicated user without roles")
+		if "System Manager" in frappe.get_roles(self.integration_user):
+			frappe.throw("Run Notifications As must not have the System Manager role: use a dedicated user without roles")
 
 
 @frappe.whitelist()
