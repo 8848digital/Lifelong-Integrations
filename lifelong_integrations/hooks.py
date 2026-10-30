@@ -260,3 +260,7 @@ auth_hooks = ["lifelong_integrations.lifelong_integrations.api.flipkart_api.auth
 # default_log_clearing_doctypes = {
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
+
+default_log_clearing_doctypes = {
+	"Flipkart API Log": 90,
+}
