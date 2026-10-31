@@ -17,9 +17,17 @@ INTERNAL_ERROR = "INTERNAL_ERROR"
 
 RETRYABLE_STATUS = (429, 500, 502, 503, 504)
 
+# Who may call the gateway's Flipkart methods (buttons, and the ERP site's API user)
+FLIPKART_ROLES = ("System Manager", "Flipkart Integration")
+
 
 def get_settings():
 	return frappe.get_cached_doc(SETTINGS)
+
+
+def check_flipkart_access():
+	"""Whitelisted Flipkart methods: System Manager or Flipkart Integration role only."""
+	frappe.only_for(FLIPKART_ROLES)
 
 
 def json_response(body, status=200):

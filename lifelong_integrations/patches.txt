@@ -4,3 +4,4 @@
 
 [post_model_sync]
 # Patches added in this section will be executed after doctypes are migrated
+lifelong_integrations.patches.flipkart_integration_role_and_log_retention
