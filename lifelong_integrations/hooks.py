@@ -214,7 +214,7 @@ scheduler_events = {
 
 # Request Events
 # ----------------
-# before_request = ["lifelong_integrations.utils.before_request"]
+before_request = ["lifelong_integrations.utils.hide_error_traceback"]
 # after_request = ["lifelong_integrations.utils.after_request"]
 
 # Job Events
