@@ -13,10 +13,12 @@ import json
 import time
 
 import frappe
-from frappe.rate_limiter import rate_limit
 from frappe.utils import add_to_date, getdate, now_datetime
 
-from lifelong_integrations.lifelong_integrations.api.flipkart_api.auth import get_auth_error_response
+from lifelong_integrations.lifelong_integrations.api.flipkart_api.auth import (
+	get_auth_error_response,
+	rate_limit_by_client_ip,
+)
 from lifelong_integrations.lifelong_integrations.api.flipkart_api.utils import (
 	INTERNAL_ERROR,
 	VALIDATION_FAILED,
@@ -46,21 +48,21 @@ class NotificationError(Exception):
 
 
 @frappe.whitelist(allow_guest=True, methods=["POST"])
-@rate_limit(limit=WEBHOOK_RATE_LIMIT, seconds=WEBHOOK_RATE_WINDOW)
+@rate_limit_by_client_ip(limit=WEBHOOK_RATE_LIMIT, seconds=WEBHOOK_RATE_WINDOW)
 def po_notification():
 	"""Webhook endpoint registered with Flipkart for PO_CREATE and PO_EDIT."""
 	return _handle("Flipkart PO Notification", _process_po_notification)
 
 
 @frappe.whitelist(allow_guest=True, methods=["POST"])
-@rate_limit(limit=WEBHOOK_RATE_LIMIT, seconds=WEBHOOK_RATE_WINDOW)
+@rate_limit_by_client_ip(limit=WEBHOOK_RATE_LIMIT, seconds=WEBHOOK_RATE_WINDOW)
 def consignment_schedule_callback():
 	"""Callback endpoint for the Consignment Schedule response (ASN step 2)."""
 	return _handle("Flipkart Consignment Schedule Callback", _process_schedule_callback)
 
 
 @frappe.whitelist(allow_guest=True, methods=["POST"])
-@rate_limit(limit=WEBHOOK_RATE_LIMIT, seconds=WEBHOOK_RATE_WINDOW)
+@rate_limit_by_client_ip(limit=WEBHOOK_RATE_LIMIT, seconds=WEBHOOK_RATE_WINDOW)
 def document_ack_callback():
 	"""Callback endpoint for the ASN / document acknowledgement (ASN step 4)."""
 	return _handle("Flipkart Document Ack Callback", _process_document_callback)

@@ -14,6 +14,7 @@
   "column_break_inbound",
   "integration_user",
   "inbound_ip_allowlist",
+  "trusted_proxies",
   "endpoint_urls",
   "outbound_section",
   "environment",
@@ -91,6 +92,12 @@
    "fieldtype": "Small Text",
    "label": "Allowed Source IPs / CIDRs",
    "description": "One per line. Flipkart: 103.4.255.64/26 (UAT and Production). Leave empty to skip the check here (nginx should enforce it too)."
+  },
+  {
+   "fieldname": "trusted_proxies",
+   "fieldtype": "Small Text",
+   "label": "Trusted Proxy IPs / CIDRs",
+   "description": "One per line: load balancers or proxies in front of this site that are not on this server (a proxy on this server, such as nginx, is always trusted). The caller's IP is read from X-Forwarded-For only behind these; it is used for the allowlist and the rate limits."
   },
   {
    "fieldname": "endpoint_urls",
@@ -184,7 +191,7 @@
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-10-30 18:00:00.000000",
+ "modified": "2026-11-02 18:00:00.000000",
  "modified_by": "Administrator",
  "module": "Lifelong Integrations",
  "name": "Flipkart Settings",
