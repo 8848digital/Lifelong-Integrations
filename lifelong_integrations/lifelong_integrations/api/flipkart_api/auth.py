@@ -6,9 +6,11 @@ inbound client secret), so they survive restarts and need no storage.
 
 Frappe rejects any request with a two-part Authorization header unless it maps
 to a user, so `authenticate_flipkart_request` (an `auth_hooks` entry) verifies
-the token for the Flipkart endpoints only and sets the session user. A bad token
-is not rejected here: it is flagged, and the endpoint answers with Flipkart's
-error envelope instead of Frappe's.
+the token for the three Flipkart webhook URLs only (exact path) and sets the
+session user to the Integration User of Flipkart Settings. A bad token is not
+rejected here: it is flagged, and the webhook answers with Flipkart's error
+envelope instead of Frappe's. Any other URL, and a missing Integration User,
+never get a user from this hook (never Administrator).
 """
 
 import hmac
@@ -18,6 +20,7 @@ import uuid
 
 import frappe
 import jwt
+from frappe.rate_limiter import rate_limit
 
 from lifelong_integrations.lifelong_integrations.api.flipkart_api.utils import (
 	FORBIDDEN,
@@ -28,11 +31,23 @@ from lifelong_integrations.lifelong_integrations.api.flipkart_api.utils import (
 )
 
 FLIPKART_INBOUND_PREFIX = "lifelong_integrations.lifelong_integrations.api.flipkart_api.webhook."
+FLIPKART_WEBHOOKS = ("po_notification", "consignment_schedule_callback", "document_ack_callback")
+# Only these exact paths get the hook's user: the module name anywhere else in a URL (e.g. as a document
+# name in /api/resource/<Single>/<name>) must not authenticate the request.
+FLIPKART_WEBHOOK_PATHS = frozenset(f"/api/method/{FLIPKART_INBOUND_PREFIX}{method}" for method in FLIPKART_WEBHOOKS)
 TOKEN_ISSUER = "lifelong-integrations-gateway"
 MAX_TOKEN_TTL = 3600
+# clock difference allowed between the token's iat and this server
+TOKEN_CLOCK_SKEW = 60
+
+
+# per source IP: Flipkart fetches a token about once an hour
+TOKEN_RATE_LIMIT = 30
+TOKEN_RATE_WINDOW = 60
 
 
 @frappe.whitelist(allow_guest=True, methods=["POST"])
+@rate_limit(limit=TOKEN_RATE_LIMIT, seconds=TOKEN_RATE_WINDOW)
 def token():
 	"""Token endpoint shared with Flipkart as `token_uri`."""
 	frappe.local.flags.disable_traceback = True
@@ -94,7 +109,7 @@ def token():
 def authenticate_flipkart_request():
 	"""auth_hooks entry: verify Flipkart's Bearer token on the Flipkart endpoints only."""
 	request = getattr(frappe.local, "request", None)
-	if not request or FLIPKART_INBOUND_PREFIX not in (request.path or ""):
+	if not request or not is_flipkart_webhook_path(request.path):
 		return
 
 	settings = get_settings()
@@ -107,10 +122,28 @@ def authenticate_flipkart_request():
 		if error:
 			frappe.local.flags.flipkart_auth_error = (401, UNAUTHORIZED, error)
 
-	# Set the user either way, otherwise Frappe raises its own 401 before the
-	# endpoint can reply in Flipkart's format. The endpoint refuses the request
-	# when the flag is set.
-	frappe.set_user(settings.integration_user or "Administrator")
+	# Set the user either way, otherwise Frappe raises its own 401 before the webhook can reply in Flipkart's
+	# format; the webhook refuses the request when the flag is set (only the webhook runs on these paths).
+	# No Integration User: no user is set and Frappe refuses the request.
+	integration_user = get_integration_user(settings)
+	if integration_user:
+		frappe.set_user(integration_user)
+	else:
+		frappe.local.flags.flipkart_auth_error = (401, UNAUTHORIZED, "Flipkart integration is not configured")
+
+
+def is_flipkart_webhook_path(path):
+	return (path or "").rstrip("/") in FLIPKART_WEBHOOK_PATHS
+
+
+def get_integration_user(settings):
+	"""Flipkart Settings' Integration User, if usable: enabled and not Administrator / Guest."""
+	user = settings.get("integration_user")
+	if not user or user in ("Administrator", "Guest"):
+		return None
+	if not frappe.db.get_value("User", user, "enabled"):
+		return None
+	return user
 
 
 def get_auth_error_response():
@@ -152,6 +185,13 @@ def _verify_bearer(settings):
 		return "Invalid token"
 
 	if claims.get("sub") != settings.inbound_client_id:
+		return "Invalid token"
+	# Only tokens as `token` issues them: at most MAX_TOKEN_TTL long and not issued in the future
+	try:
+		issued_at, expires_at = int(claims["iat"]), int(claims["exp"])
+	except (TypeError, ValueError):
+		return "Invalid token"
+	if issued_at > time.time() + TOKEN_CLOCK_SKEW or expires_at - issued_at > MAX_TOKEN_TTL:
 		return "Invalid token"
 	frappe.local.flags.flipkart_auth_checked = True
 	return None

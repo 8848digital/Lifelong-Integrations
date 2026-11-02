@@ -8,6 +8,7 @@ from frappe.utils import now_datetime
 from lifelong_integrations.lifelong_integrations.api.flipkart_api.utils import (
 	call_erp,
 	call_flipkart,
+	check_flipkart_access,
 	create_api_log,
 	get_settings,
 )
@@ -28,11 +29,17 @@ def scheduled_push_pending_pos():
 	"""Scheduler (every 5 min): retry anything the on-receipt push did not finish."""
 	settings = get_settings()
 	if settings.enabled and settings.auto_push_to_erp:
-		push_pending_pos()
+		_push_pending_pos()
 
 
 @frappe.whitelist()
 def push_pending_pos(po_data_name=None):
+	"""'Push to ERP' buttons."""
+	check_flipkart_access()
+	return _push_pending_pos(po_data_name)
+
+
+def _push_pending_pos(po_data_name=None):
 	"""Send Initiated POs to the ERP site (oldest first, so a PO_CREATE goes before its edits)."""
 	filters = {"status": "Initiated"}
 	if po_data_name:
@@ -98,6 +105,7 @@ def push_po_to_erp(po_data_name):
 
 @frappe.whitelist()
 def retry_po(po_data_name):
+	check_flipkart_access()
 	doc = frappe.get_doc("Flipkart PO Data", po_data_name)
 	if doc.status != "Failed":
 		frappe.throw("Only Failed POs can be retried")
@@ -105,7 +113,7 @@ def retry_po(po_data_name):
 	doc.sync_message = ""
 	doc.save()
 	frappe.db.commit()
-	return push_pending_pos(po_data_name=po_data_name)
+	return _push_pending_pos(po_data_name=po_data_name)
 
 
 # ---------------------------------------------------------------------------
@@ -116,6 +124,7 @@ def retry_po(po_data_name):
 @frappe.whitelist()
 def get_pending_flipkart_pos():
 	"""For the ERP 'Fetch Flipkart POs' button: Initiated POs, oldest first."""
+	check_flipkart_access()
 	return frappe.get_all(
 		"Flipkart PO Data",
 		filters={"status": "Initiated"},
@@ -126,6 +135,7 @@ def get_pending_flipkart_pos():
 
 @frappe.whitelist()
 def update_po_status(po_data_name, status, sync_doc=None, message=None):
+	check_flipkart_access()
 	if not frappe.db.exists("Flipkart PO Data", po_data_name):
 		return {"status": "not_found"}
 	doc = frappe.get_doc("Flipkart PO Data", po_data_name)
@@ -146,6 +156,7 @@ def reset_flipkart_po_by_quotation(quotation_name, po_number=None):
 	The latest record may be a PO_EDIT; the ERP then builds the new Quotation
 	from the edited payload.
 	"""
+	check_flipkart_access()
 	filters = {"po_number": po_number} if po_number else {"sync_doc": quotation_name}
 	name = frappe.db.get_value("Flipkart PO Data", filters, "name", order_by="creation desc")
 	if not name:
@@ -165,6 +176,7 @@ def reset_flipkart_po_by_quotation(quotation_name, po_number=None):
 
 @frappe.whitelist()
 def log_remote_error(title, message, status="Failed", reference=None):
+	check_flipkart_access()
 	create_api_log(api=title, direction="Inbound", status=status, reference=reference, traceback=message)
 	return {"status": "logged"}
 
@@ -172,6 +184,7 @@ def log_remote_error(title, message, status="Failed", reference=None):
 @frappe.whitelist()
 def send_po_ack(po_number):
 	"""Send PO_ACK (status 'accepted') for a PO_CREATE. Sent once per PO; repeats are no-ops."""
+	check_flipkart_access()
 	create_name = frappe.db.get_value(
 		"Flipkart PO Data",
 		{"po_number": po_number, "event_type": "PO_CREATE"},
