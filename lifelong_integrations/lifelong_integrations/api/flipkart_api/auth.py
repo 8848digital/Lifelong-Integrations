@@ -36,6 +36,7 @@ FLIPKART_WEBHOOKS = ("po_notification", "consignment_schedule_callback", "docume
 # Only these exact paths get the hook's user: the module name anywhere else in a URL (e.g. as a document
 # name in /api/resource/<Single>/<name>) must not authenticate the request.
 FLIPKART_WEBHOOK_PATHS = frozenset(f"/api/method/{FLIPKART_INBOUND_PREFIX}{method}" for method in FLIPKART_WEBHOOKS)
+TOKEN_PATH = "/api/method/lifelong_integrations.lifelong_integrations.api.flipkart_api.auth.token"
 TOKEN_ISSUER = "lifelong-integrations-gateway"
 MAX_TOKEN_TTL = 3600
 # clock difference allowed between the token's iat and this server
@@ -164,11 +165,20 @@ def is_flipkart_webhook_path(path):
 
 
 def get_integration_user(settings):
-	"""Flipkart Settings' Integration User, if usable: enabled and not Administrator / Guest."""
+	"""Flipkart Settings' Integration User, if usable: enabled, not Administrator / Guest and, checked on every
+	request (VAPT FG-05: a role added after Flipkart Settings was saved), not a System Manager."""
 	user = settings.get("integration_user")
 	if not user or user in ("Administrator", "Guest"):
 		return None
 	if not frappe.db.get_value("User", user, "enabled"):
+		return None
+	if "System Manager" in frappe.get_roles(user):
+		# once an hour, not on every refused call
+		if frappe.cache.set(frappe.cache.make_key("flipkart-integration-user-sm"), 1, ex=3600, nx=True):
+			frappe.log_error(
+				"Flipkart Integration User is a System Manager",
+				f"{user} has the System Manager role: Flipkart calls are refused until it is removed.",
+			)
 		return None
 	return user
 
