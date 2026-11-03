@@ -16,11 +16,19 @@ import frappe
 from frappe.utils import add_to_date, getdate, now_datetime
 
 from lifelong_integrations.lifelong_integrations.api.flipkart_api.auth import (
+	FLIPKART_WEBHOOK_PATHS,
+	TOKEN_PATH,
+	_oauth_error,
+	_verify_bearer,
 	get_auth_error_response,
+	get_client_ip,
+	is_ip_allowed,
 	rate_limit_by_client_ip,
 )
 from lifelong_integrations.lifelong_integrations.api.flipkart_api.utils import (
+	FORBIDDEN,
 	INTERNAL_ERROR,
+	UNAUTHORIZED,
 	VALIDATION_FAILED,
 	create_api_log,
 	error_response,
@@ -37,6 +45,13 @@ MAX_BODY_BYTES = 5 * 1024 * 1024
 # per source IP, for each webhook
 WEBHOOK_RATE_LIMIT = 1200
 WEBHOOK_RATE_WINDOW = 60
+# refused (unauthenticated) calls: one API Log row per caller address and webhook in this many seconds
+REFUSED_LOG_WINDOW = 60
+WEBHOOK_APIS = {
+	"po_notification": "Flipkart PO Notification",
+	"consignment_schedule_callback": "Flipkart Consignment Schedule Callback",
+	"document_ack_callback": "Flipkart Document Ack Callback",
+}
 
 
 class NotificationError(Exception):
@@ -51,21 +66,21 @@ class NotificationError(Exception):
 @rate_limit_by_client_ip(limit=WEBHOOK_RATE_LIMIT, seconds=WEBHOOK_RATE_WINDOW)
 def po_notification():
 	"""Webhook endpoint registered with Flipkart for PO_CREATE and PO_EDIT."""
-	return _handle("Flipkart PO Notification", _process_po_notification)
+	return _handle(WEBHOOK_APIS["po_notification"], _process_po_notification)
 
 
 @frappe.whitelist(allow_guest=True, methods=["POST"])
 @rate_limit_by_client_ip(limit=WEBHOOK_RATE_LIMIT, seconds=WEBHOOK_RATE_WINDOW)
 def consignment_schedule_callback():
 	"""Callback endpoint for the Consignment Schedule response (ASN step 2)."""
-	return _handle("Flipkart Consignment Schedule Callback", _process_schedule_callback)
+	return _handle(WEBHOOK_APIS["consignment_schedule_callback"], _process_schedule_callback)
 
 
 @frappe.whitelist(allow_guest=True, methods=["POST"])
 @rate_limit_by_client_ip(limit=WEBHOOK_RATE_LIMIT, seconds=WEBHOOK_RATE_WINDOW)
 def document_ack_callback():
 	"""Callback endpoint for the ASN / document acknowledgement (ASN step 4)."""
-	return _handle("Flipkart Document Ack Callback", _process_document_callback)
+	return _handle(WEBHOOK_APIS["document_ack_callback"], _process_document_callback)
 
 
 def _handle(api, processor):
@@ -76,7 +91,7 @@ def _handle(api, processor):
 	raw_body = frappe.request.get_data(as_text=True) if frappe.request else ""
 	reference = None
 
-	def log(status, status_code, response, traceback=None, store_body=True):
+	def log(status, status_code, response, traceback=None, store_body=True, note=""):
 		create_api_log(
 			api=api,
 			direction="Inbound",
@@ -84,7 +99,7 @@ def _handle(api, processor):
 			status_code=status_code,
 			endpoint=frappe.request.path if frappe.request else None,
 			# a request that is not authenticated (or too large) can't make the log grow by its body
-			payload=raw_body if store_body else f"(body not stored: {len(raw_body.encode())} bytes)",
+			payload=raw_body if store_body else f"(body not stored: {len(raw_body.encode())} bytes{note})",
 			response=response,
 			reference=reference,
 			request_id=frappe.get_request_header("X-Request-Id") or delivery_uuid,
@@ -96,7 +111,10 @@ def _handle(api, processor):
 
 	auth_error = get_auth_error_response()
 	if auth_error is not None:
-		log("Failed", auth_error.status_code, auth_error.get_data(as_text=True), store_body=False)
+		if first_refusal_in_window(api):
+			note = f"; more refused calls from this address in the next {REFUSED_LOG_WINDOW} s are not logged"
+			response = auth_error.get_data(as_text=True)
+			log("Failed", auth_error.status_code, response, store_body=False, note=note)
 		return auth_error
 
 	if len(raw_body.encode()) > MAX_BODY_BYTES:
@@ -132,6 +150,63 @@ def _handle(api, processor):
 
 	finally:
 		frappe.local.message_log = []
+
+
+def first_refusal_in_window(api):
+	"""True for the first refused call per caller address and webhook in REFUSED_LOG_WINDOW: refused calls
+	are logged as a sample, so unauthenticated traffic can't add a row each (VAPT FG-02)."""
+	ip = get_client_ip(get_settings()) or "unknown"
+	key = frappe.cache.make_key(f"flipkart-refused-log:{api}:{ip}")
+	return bool(frappe.cache.set(key, 1, ex=REFUSED_LOG_WINDOW, nx=True))
+
+
+def answer_unparseable_body(response=None, request=None):
+	"""after_request: Frappe parses a JSON body before any app code runs, and a body it can't parse ends in
+	its own HTTP 500 (VAPT FG-01). On the Flipkart URLs answer as the endpoint would have: 403 / 401 when the
+	caller is not allowed, else 400 (a 5xx makes Flipkart retry a notification that can never be read).
+	A body that does parse means a real server error: its 5xx is kept so Flipkart retries."""
+	if response is None or request is None or response.status_code < 500 or not request.is_json:
+		return
+	path = (request.path or "").rstrip("/")
+	if path != TOKEN_PATH and path not in FLIPKART_WEBHOOK_PATHS:
+		return
+	try:
+		json.loads(request.get_data(as_text=True) or "null")
+		return
+	except (ValueError, RecursionError):
+		pass
+
+	settings = get_settings()
+	size = len(request.get_data())
+	if not is_ip_allowed(settings):
+		replacement = (
+			_oauth_error(403, "access_denied", "Source IP is not allowed")
+			if path == TOKEN_PATH
+			else error_response(403, FORBIDDEN, "Source IP is not allowed")
+		)
+	elif path == TOKEN_PATH:
+		replacement = _oauth_error(400, "invalid_request", "Request body is not valid JSON")
+	elif message := _verify_bearer(settings):
+		replacement = error_response(401, UNAUTHORIZED, message)
+	else:
+		replacement = error_response(400, VALIDATION_FAILED, "Request body is not valid JSON")
+		create_api_log(
+			api=WEBHOOK_APIS[path.rsplit(".", 1)[-1]],
+			direction="Inbound",
+			status="Failed",
+			status_code=400,
+			endpoint=path,
+			payload=f"(body not stored: {size} bytes, not valid JSON)",
+			response=replacement.get_data(as_text=True),
+			request_id=frappe.get_request_header("X-Request-Id") or new_request_id(),
+			notification_type=_notification_type_header(),
+			request_headers=safe_request_headers(),
+		)
+
+	response.status_code = replacement.status_code
+	response.set_data(replacement.get_data())
+	response.headers["Content-Type"] = "application/json"
+	response.headers["Cache-Control"] = "no-store"
 
 
 def _notification_type_header():
