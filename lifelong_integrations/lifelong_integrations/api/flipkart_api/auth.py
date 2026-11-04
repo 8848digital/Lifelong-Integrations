@@ -17,10 +17,11 @@ import hmac
 import ipaddress
 import time
 import uuid
+from functools import wraps
 
 import frappe
 import jwt
-from frappe.rate_limiter import rate_limit
+from frappe import _
 
 from lifelong_integrations.lifelong_integrations.api.flipkart_api.utils import (
 	FORBIDDEN,
@@ -44,10 +45,36 @@ TOKEN_CLOCK_SKEW = 60
 # per source IP: Flipkart fetches a token about once an hour
 TOKEN_RATE_LIMIT = 30
 TOKEN_RATE_WINDOW = 60
+# a proxy on this server is always trusted to report the caller's IP; others only when listed in Flipkart Settings
+LOOPBACK_NETWORKS = (ipaddress.ip_network("127.0.0.0/8"), ipaddress.ip_network("::1/128"))
+
+
+def rate_limit_by_client_ip(limit, seconds):
+	"""Like frappe.rate_limiter.rate_limit, but counted per `get_client_ip`: Frappe's own key is the first
+	X-Forwarded-For entry, which the caller chooses, so a new value per request escaped the limit."""
+
+	def decorator(fn):
+		@wraps(fn)
+		def wrapper(*args, **kwargs):
+			if getattr(frappe.local, "request", None):
+				ip = get_client_ip(get_settings()) or "unknown"
+				key = frappe.cache.make_key(f"rl:{fn.__module__}.{fn.__name__}:{ip}")
+				if not frappe.cache.get(key):
+					frappe.cache.setex(key, seconds, 0)
+				if frappe.cache.incrby(key, 1) > limit:
+					frappe.throw(
+						_("You hit the rate limit because of too many requests. Please try after sometime."),
+						frappe.RateLimitExceededError,
+					)
+			return fn(*args, **kwargs)
+
+		return wrapper
+
+	return decorator
 
 
 @frappe.whitelist(allow_guest=True, methods=["POST"])
-@rate_limit(limit=TOKEN_RATE_LIMIT, seconds=TOKEN_RATE_WINDOW)
+@rate_limit_by_client_ip(limit=TOKEN_RATE_LIMIT, seconds=TOKEN_RATE_WINDOW)
 def token():
 	"""Token endpoint shared with Flipkart as `token_uri`."""
 	frappe.local.flags.disable_traceback = True
@@ -198,20 +225,52 @@ def _verify_bearer(settings):
 
 
 def is_ip_allowed(settings):
-	allowlist = [line.strip() for line in (settings.inbound_ip_allowlist or "").splitlines() if line.strip()]
+	allowlist = _networks(settings.inbound_ip_allowlist)
 	if not allowlist:
 		return True
+	ip = get_client_ip(settings)
+	return ip is not None and _in_networks(ip, allowlist)
+
+
+def get_client_ip(settings):
+	"""The caller's IP: the connecting address, or, when that is a trusted proxy, the last X-Forwarded-For
+	entry no trusted proxy added. Entries further left are written by the caller and are never used
+	(frappe.local.request_ip is the leftmost one). None when an address read is not a valid IP."""
+	request = getattr(frappe.local, "request", None)
+	peer = _parse_ip(getattr(request, "remote_addr", None))
+	if peer is None:
+		return None
+	trusted = [*LOOPBACK_NETWORKS, *_networks(settings.get("trusted_proxies"))]
+	if not _in_networks(peer, trusted):
+		return peer
+	forwarded = ",".join(request.headers.getlist("X-Forwarded-For"))
+	for entry in reversed([part.strip() for part in forwarded.split(",") if part.strip()]):
+		ip = _parse_ip(entry)
+		if ip is None or not _in_networks(ip, trusted):
+			return ip
+	return peer
+
+
+def _parse_ip(value):
 	try:
-		ip = ipaddress.ip_address(frappe.local.request_ip or "")
+		return ipaddress.ip_address((value or "").strip())
 	except ValueError:
-		return False
-	for entry in allowlist:
+		return None
+
+
+def _networks(text):
+	networks = []
+	for line in (text or "").splitlines():
 		try:
-			if ip in ipaddress.ip_network(entry, strict=False):
-				return True
+			if line.strip():
+				networks.append(ipaddress.ip_network(line.strip(), strict=False))
 		except ValueError:
 			continue
-	return False
+	return networks
+
+
+def _in_networks(ip, networks):
+	return any(ip.version == network.version and ip in network for network in networks)
 
 
 def _oauth_error(status, error, description):
