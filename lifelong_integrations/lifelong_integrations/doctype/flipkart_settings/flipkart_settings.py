@@ -8,6 +8,9 @@ import frappe
 from frappe.model.document import Document
 
 from lifelong_integrations.lifelong_integrations.api.flipkart_api.auth import MAX_TOKEN_TTL
+from lifelong_integrations.utils import validate_https_url
+
+URL_FIELDS = ("uat_api_base_url", "uat_token_url", "production_api_base_url", "production_token_url")
 
 
 class FlipkartSettings(Document):
@@ -15,6 +18,8 @@ class FlipkartSettings(Document):
 		if self.token_ttl_seconds and not 60 <= self.token_ttl_seconds <= MAX_TOKEN_TTL:
 			frappe.throw(f"Token Lifetime must be between 60 and {MAX_TOKEN_TTL} seconds (Flipkart limit)")
 		self.validate_integration_user()
+		for fieldname in URL_FIELDS:
+			validate_https_url(self.get(fieldname), self.meta.get_label(fieldname))
 		for line in (self.inbound_ip_allowlist or "").splitlines():
 			if line.strip():
 				try:
