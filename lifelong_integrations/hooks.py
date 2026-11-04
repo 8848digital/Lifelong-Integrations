@@ -214,7 +214,10 @@ scheduler_events = {
 # Request Events
 # ----------------
 before_request = ["lifelong_integrations.utils.hide_error_traceback"]
-# after_request = ["lifelong_integrations.utils.after_request"]
+after_request = [
+	"lifelong_integrations.lifelong_integrations.api.flipkart_api.webhook.answer_unparseable_body",
+	"lifelong_integrations.utils.add_security_headers",
+]
 
 # Job Events
 # ----------
